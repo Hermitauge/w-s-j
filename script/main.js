@@ -1,5 +1,5 @@
-import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from './formatData.js';  
-import { showLoadingAnimation, hideLoadingAnimation } from './loadingAnimation.js';
+import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
+import { showLoadingAnimation, hideLoadingAnimation } from 'https://github.com/Hermitauge/W-S/blob/5173c329612f73943696e670edfa37f65f05de0c/script/loadingAnimation.js';
 
 (() => {  
     window.addEventListener('load', async () => {  
