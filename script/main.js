@@ -1,5 +1,5 @@
 import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@c9530f03f9da402fbf051040a26d449a0e2794fa/script/formatData.js';  
-import { showLoadingAnimation, hideLoadingAnimation } from 'https://github.com/Hermitauge/W-S/blob/c9530f03f9da402fbf051040a26d449a0e2794fa/script/loadingAnimation.js';
+import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@4b33f6b1c81d1b9eef3f151a075f87d4f7c40284/script/loadingAnimation.js';
 
 (() => {  
     window.addEventListener('load', async () => {  
