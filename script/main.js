@@ -1,5 +1,5 @@
-import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@c9530f03f9da402fbf051040a26d449a0e2794fa/script/formatData.js';  
-import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@4b33f6b1c81d1b9eef3f151a075f87d4f7c40284/script/loadingAnimation.js';
+import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from './formatData.js';  
+import { showLoadingAnimation, hideLoadingAnimation } from './loadingAnimation.js';
 
 (() => {  
     window.addEventListener('load', async () => {  
@@ -35,7 +35,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         "cmsfilter",  
         async (filtersInstances) => {  
           const [filtersInstance] = filtersInstances;  
-          listInstance = listInstance;  
+          listInstance = filtersInstance.listInstance;  
           const [firstItem] = listInstance.items;  
           itemTemplateElement = firstItem.element;  
   
@@ -339,20 +339,20 @@ function createItem(product, templateElement) {
         "price": formatPrice(product.price),  
     };  
     Object.keys(mappings).forEach(key => {  
-        const element = newItem.querySelector(`[data-element="${key}"]`);  
-        if (element) {  
-            if (key === 'video' && element.tagName === 'IFRAME' && mappings[key]) {
-                // Only modify the URL if it is not null or undefined
-                const modifiedVideoURL = mappings[key].replace('500/500', '250/250/');
-                element.src = modifiedVideoURL;
-            } else {
-                // Set textContent for other elements
-                element.textContent = mappings[key];
-            }
-        }  
-    }); 
-    return newItem;  
-  }
+      const elements = newItem.querySelectorAll(`[data-element="${key}"]`);  
+      elements.forEach(element => {
+          if (key === 'video' && element.tagName === 'IFRAME' && mappings[key]) {
+              // Only modify the URL if it is not null or undefined
+              const modifiedVideoURL = mappings[key].replace('500/500', '500/500/');
+              element.src = modifiedVideoURL;
+          } else {
+              // Set textContent for other elements
+              element.textContent = mappings[key];
+          }
+      });
+  }); 
+  return newItem;  
+}
 
 
 
