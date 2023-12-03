@@ -35,7 +35,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         "cmsfilter",  
         async (filtersInstances) => {  
           const [filtersInstance] = filtersInstances;  
-          listInstance = filtersInstance.listInstance;  
+          listInstance = listInstance;  
           const [firstItem] = listInstance.items;  
           itemTemplateElement = firstItem.element;  
   
