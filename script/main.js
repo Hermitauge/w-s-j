@@ -452,8 +452,35 @@ function createItem(product, templateElement) {
           }
       });
   }); 
-  return newItem;  
-}
+    // Handle the open panel functionality
+    const openPanel = newItem.querySelector('.open-panel');
+    const videoElement = newItem.querySelector('[data-element="video"]');
+    if (openPanel && videoElement) {
+        openPanel.addEventListener('click', function () {
+            const infoPanel = newItem.querySelector('.info-panel');
+            if (infoPanel) {
+                infoPanel.classList.toggle('hidden');
+
+                // Create an iframe if it doesn't exist
+                if (!infoPanel.classList.contains('hidden') && !infoPanel.querySelector('iframe')) {
+                    const innerVideo = infoPanel.querySelector('.inner-vid');
+                    const iframe = document.createElement('iframe');
+                    let modifiedVideoURL = videoElement.getAttribute('data-video-url').replace('500/500', '360/360/autoplay');
+                    iframe.src = modifiedVideoURL;
+                    iframe.width = '360';
+                    iframe.height = '360';
+                    iframe.frameBorder = '0';
+                    iframe.allow = 'autoplay; encrypted-media';
+                    iframe.allowFullscreen = true;
+                    innerVideo.innerHTML = '';
+                    innerVideo.appendChild(iframe);
+                }
+            }
+        });
+    }
+    
+    return newItem;
+  };
 
 
 
