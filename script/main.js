@@ -18,7 +18,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const minCut = document.getElementById('minCut').value;  
         const maxCut = document.getElementById('maxCut').value;
         showLoadingAnimation();  
-        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut); // Including price filters
+        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs); // Including price filters
         hideLoadingAnimation();  
         updateList(allProducts, listInstance, itemTemplateElement);  
         attachEventListenersToCheckboxes(listInstance, itemTemplateElement, allProducts);  
@@ -44,7 +44,9 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       ]);  
   
       let checkedShapes = [];  // Tracks the currently checked shapes  
-      
+      let checkedLabs = []; // Tracks the currently checked labs
+
+
       function updateItemCounters(allProducts, displayedProducts) {
         const totalCountElement = document.querySelector('[data-element="total-count"]');
         const totalShownElement = document.querySelector('[data-element="total-shown"]');
@@ -64,13 +66,27 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           const shapeLabel = label.querySelector("span");  
   
           if (checkbox && shapeLabel) {  
-            checkbox.addEventListener('change', async () => {  
+              checkbox.addEventListener('change', async () => {  
               updateCheckedShapes(shapeLabel.textContent, checkbox.checked);  
               await applyAllFilters();  
             });  
           }  
-        });  
-      }  
+        });
+            // Lab Checkboxes
+        const labCheckboxLabels = document.querySelectorAll(".lab-checkbox_field");
+        labCheckboxLabels.forEach(label => {
+            const checkbox = label.querySelector("input[type='checkbox']");
+            const shapeLabel = label.querySelector("span");
+
+          if (checkbox && shapeLabel) { 
+              checkbox.addEventListener('change', async () => {
+              updateCheckedShapes(shapeLabel.textContent, checkbox.checked);
+              await applyAllFilters();
+            });
+          }
+        });
+      }
+
   
       function updateCheckedShapes(shape, isChecked) {  
         if (isChecked) {  
@@ -79,7 +95,15 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           checkedShapes = checkedShapes.filter(s => s !== shape);  
         }  
       }  
-  
+      function updateCheckedLabs(lab, isChecked) {
+        if (isChecked) {
+            checkedLabs.push(lab);
+        } else {
+            checkedLabs = checkedLabs.filter(l => l !== lab);
+        }
+      }
+    
+
       function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -167,16 +191,16 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           element.addEventListener('change', debouncedApplyAllFilters);
         });
       }
-      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut) {  
+      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs) {  
         let products = [];  
       
         if (checkedShapes.length === 0) {  
             // Return all products if no shape is selected, filtered by price
-            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut);
+            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs);
         } else {  
             const productsPromises = checkedShapes.map(shape =>  
               // Include price filters in each shape query
-              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut)
+              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs)
             );  
             const productsArrays = await Promise.all(productsPromises);  
             products = interleaveProducts(productsArrays);  
@@ -205,7 +229,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         showLoadingAnimation();  
         
         // Fetch and interleave products based on selected shapes and price filters  
-        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut);  
+        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs);  
         
         // Update the list with filtered products  
         await updateList(filteredProducts, listInstance, itemTemplateElement);  
@@ -236,7 +260,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const cutMapping = ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'];
         return cutMapping[Math.min(Math.max(parseInt(value), 0), cutMapping.length - 1)];
     }
-      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '') {  
+      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = []) {  
         const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
         if (shapeFilter) {  
           url.searchParams.set('shape', encodeURIComponent(shapeFilter));  
@@ -283,6 +307,10 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             if (cutCodeMax) {
                 url.searchParams.set('maxCut', cutCodeMax);
             }
+            // Include lab filters
+            checkedLabs.forEach(lab => {
+              url.searchParams.append('lab', lab);
+            });
   // Log the API URL parameters  
   console.log(`Fetching products with URL: ${url.href}`);
 
