@@ -453,19 +453,19 @@ function createItem(product, templateElement) {
       });
   }); 
     // Handle the open panel functionality
-    const openPanel = newItem.querySelector('.open-panel');
-    const videoElement = newItem.querySelector('[data-element="video"]');
+    const openPanel = newItem.querySelectorAll('.open-panel');
+    const videoElement = newItem.querySelectorAll('.video-iframe');
     if (openPanel && videoElement) {
         openPanel.addEventListener('click', function () {
-            const infoPanel = newItem.querySelector('.info-panel');
+            const infoPanel = newItem.querySelectorAll('.info-panel');
             if (infoPanel) {
-                infoPanel.classList.toggle('hidden');
+                infoPanel.classList.toggle('hide');
 
                 // Create an iframe if it doesn't exist
-                if (!infoPanel.classList.contains('hidden') && !infoPanel.querySelector('iframe')) {
-                    const innerVideo = infoPanel.querySelector('.inner-vid');
+                if (!infoPanel.classList.contains('hide') && !infoPanel.querySelector('iframe')) {
+                    const innerVideo = infoPanel.querySelectorAll('.inner-vid');
                     const iframe = document.createElement('iframe');
-                    let modifiedVideoURL = mappings[key].replace('500/500', '360/360/autoplay');
+                    let modifiedVideoURL = videoElement.getAttribute('data-video-url').replace('500/500', '360/360/autoplay');
                     iframe.src = modifiedVideoURL;
                     iframe.width = '360';
                     iframe.height = '360';
