@@ -12,6 +12,10 @@ export function formatCarats(carats) {
     return carats ? carats.toFixed(2) : 'N/A';
 }
 
+export function formatLength(length) {
+    return length ? length.toFixed(2) : 'N/A';
+}
+
 export function formatCut(cut) {
     switch (cut) {
         case 'F':

@@ -428,7 +428,7 @@ function createItem(product, templateElement) {
         "symmetry": product.diamond.certificate.symmetry,  
         "polish": product.diamond.certificate.polish,  
         "width": formatDecimal(product.diamond.certificate.width),  
-        "length": formatDecimal(product.diamond.certificate.length),  
+        "length": formatLength(product.diamond.certificate.length),  
         "depth": formatDecimal(product.diamond.certificate.depth),  
         "table": formatDecimal(product.diamond.certificate.table),  
         "girdle": product.diamond.certificate.girdle,  
