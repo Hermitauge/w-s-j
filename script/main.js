@@ -17,8 +17,12 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const maxClarity = document.getElementById('maxClarity').value;
         const minCut = document.getElementById('minCut').value;  
         const maxCut = document.getElementById('maxCut').value;
+        const minPolish = document.getElementById('minPolish').value;  
+        const maxPolish = document.getElementById('maxPolish').value;
+        const minSymmetry = document.getElementById('minSymmetry').value;  
+        const maxSymmetry = document.getElementById('maxSymmetry').value;
         showLoadingAnimation();  
-        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs); // Including price filters
+        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry); // Including price filters
         hideLoadingAnimation();  
         updateList(allProducts, listInstance, itemTemplateElement);  
         attachEventListenersToCheckboxes(listInstance, itemTemplateElement, allProducts);  
@@ -27,6 +31,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         attachColorsRangeEventListeners(listInstance, itemTemplateElement);  
         attachClarityRangeEventListeners(listInstance, itemTemplateElement);  
         attachCutRangeEventListeners(listInstance, itemTemplateElement);  
+        attachPolishRangeEventListeners(listInstance, itemTemplateElement);  
+        attachSymmetryRangeEventListeners(listInstance, itemTemplateElement);  
         updateItemCounters(allProducts, allProducts); // Initially, all products are displayed
     }; 
   
@@ -191,16 +197,49 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           element.addEventListener('change', debouncedApplyAllFilters);
         });
       }
-      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs) {  
+
+      function attachPolishRangeEventListeners(listInstance, itemTemplateElement) {
+        const minPolishInput = document.getElementById('minPolish');
+        const maxPolishInput = document.getElementById('maxPolish');
+        const handleLeft = document.querySelector('.rangeslider-handle-left');
+        const handleRight = document.querySelector('.rangeslider-handle-right');
+      
+        // Creating a debounced version of applyAllFilters to prevent overload
+        const debouncedApplyAllFilters = debounce(async () => {
+          await applyAllFilters(listInstance, itemTemplateElement);
+        }, 420); // 250 milliseconds, adjust as needed
+      
+        [minPolishInput, maxPolishInput, handleLeft, handleRight].forEach(element => {
+          element.addEventListener('change', debouncedApplyAllFilters);
+        });
+      }
+
+      function attachSymmetryRangeEventListeners(listInstance, itemTemplateElement) {
+        const minSymmetryInput = document.getElementById('minSymmetry');
+        const maxSymmetryInput = document.getElementById('maxSymmetry');
+        const handleLeft = document.querySelector('.rangeslider-handle-left');
+        const handleRight = document.querySelector('.rangeslider-handle-right');
+      
+        // Creating a debounced version of applyAllFilters to prevent overload
+        const debouncedApplyAllFilters = debounce(async () => {
+          await applyAllFilters(listInstance, itemTemplateElement);
+        }, 420); // 250 milliseconds, adjust as needed
+      
+        [minSymmetryInput, maxSymmetryInput, handleLeft, handleRight].forEach(element => {
+          element.addEventListener('change', debouncedApplyAllFilters);
+        });
+      }
+
+      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry) {  
         let products = [];  
       
         if (checkedShapes.length === 0) {  
             // Return all products if no shape is selected, filtered by price
-            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs);
+            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry);
         } else {  
             const productsPromises = checkedShapes.map(shape =>  
               // Include price filters in each shape query
-              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs)
+              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry)
             );  
             const productsArrays = await Promise.all(productsPromises);  
             products = interleaveProducts(productsArrays);  
@@ -219,7 +258,11 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const minClarity = document.getElementById('minClarity').value;  
         const maxClarity = document.getElementById('maxClarity').value;  
         const minCut = document.getElementById('minCut').value;  
-        const maxCut = document.getElementById('maxCut').value;  
+        const maxCut = document.getElementById('maxCut').value;
+        const minPolish = document.getElementById('minPolish').value;  
+        const maxPolish = document.getElementById('maxPolish').value;
+        const minSymmetry = document.getElementById('minSymmetry').value;  
+        const maxSymmetry = document.getElementById('maxSymmetry').value;  
         // Check that listInstance and itemTemplateElement are initialized
         if (!listInstance || !itemTemplateElement) {
             console.error('listInstance or itemTemplateElement is not initialized');
@@ -229,7 +272,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         showLoadingAnimation();  
         
         // Fetch and interleave products based on selected shapes and price filters  
-        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs);  
+        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry);  
         
         // Update the list with filtered products  
         await updateList(filteredProducts, listInstance, itemTemplateElement);  
@@ -260,7 +303,15 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const cutMapping = ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'];
         return cutMapping[Math.min(Math.max(parseInt(value), 0), cutMapping.length - 1)];
     }
-      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = []) {  
+    function mapSliderValueToPolish(value) {
+        const polishMapping = ['GD', 'VG', 'EX'];
+        return polishMapping[Math.min(Math.max(parseInt(value), 0), polishMapping.length - 1)];
+    }
+    function mapSliderValueToSymmetry(value) {
+        const symmetryMapping = ['GD', 'VG', 'EX'];
+        return symmetryMapping[Math.min(Math.max(parseInt(value), 0), symmetryMapping.length - 1)];
+    }
+      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '') {  
         const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
         if (shapeFilter) {  
           url.searchParams.set('shape', encodeURIComponent(shapeFilter));  
@@ -311,6 +362,28 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             checkedLabs.forEach(lab => {
               url.searchParams.append('lab', lab);
             });
+
+            // Map Polish slider values to color codes
+            const polishCodeMin = mapSliderValueToCut(minPolish);
+            const polishCodeMax = mapSliderValueToCut(maxPolish);
+
+            if (polishCodeMin) {
+                url.searchParams.set('minPolish', polishCodeMin);
+            }
+            if (polishCodeMax) {
+                url.searchParams.set('maxPolish', polishCodeMax);
+            }
+
+            // Map Symmetry slider values to color codes
+            const symmetryCodeMin = mapSliderValueToCut(minSymmetry);
+            const symmetryCodeMax = mapSliderValueToCut(maxSymmetry);
+
+            if (symmetryCodeMin) {
+                url.searchParams.set('minSymmetry', symmetryCodeMin);
+            }
+            if (symmetryCodeMax) {
+                url.searchParams.set('maxSymmetry', symmetryCodeMax);
+            }
   // Log the API URL parameters  
   console.log(`Fetching products with URL: ${url.href}`);
 
