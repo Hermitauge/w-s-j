@@ -430,7 +430,7 @@ function createItem(product, templateElement) {
         "width": product.diamond.certificate.width,  
         "length": product.diamond.certificate.length,  
         "depth": product.diamond.certificate.depth,  
-        "table": formatTable(product.diamond.certificate.table),  
+        "table": product.diamond.certificate.table,  
         "girdle": product.diamond.certificate.girdle,  
         "lab": product.diamond.certificate.lab,  
         "carats": formatCarats(product.diamond.certificate.carats),  
