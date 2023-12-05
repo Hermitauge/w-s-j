@@ -6,15 +6,6 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       var listInstance, itemTemplateElement;  
       var allProducts;  
   
-    // Define the reinitializeWebflowInteractions function
-    function reinitializeWebflowInteractions() {
-      const webflowScript = document.createElement('script');
-      webflowScript.src = 'https://assets-global.website-files.com/65569d42eae09515851ebb5c/js/nivoda-api.278a81426.js';
-      webflowScript.onload = function() {
-          Webflow.ready();
-      };
-      document.head.appendChild(webflowScript);
-  }
 
       const fetchAndInitialize = async () => {  
         const minPrice = document.getElementById('priceFrom').value;  
@@ -58,7 +49,15 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           await fetchAndInitialize();  
         },  
       ]);  
-  
+      // Define the reinitializeWebflowInteractions function
+      function reinitializeWebflowInteractions() {
+        const webflowScript = document.createElement('script');
+        webflowScript.src = 'https://assets-global.website-files.com/65569d42eae09515851ebb5c/js/nivoda-api.278a81426.js';
+        webflowScript.onload = function() {
+            Webflow.ready();
+        };
+        document.head.appendChild(webflowScript);
+    }
       let checkedShapes = [];  // Tracks the currently checked shapes  
       let checkedLabs = []; // Tracks the currently checked labs
 
