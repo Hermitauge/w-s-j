@@ -6,6 +6,16 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       var listInstance, itemTemplateElement;  
       var allProducts;  
   
+    // Define the reinitializeWebflowInteractions function
+    function reinitializeWebflowInteractions() {
+      const webflowScript = document.createElement('script');
+      webflowScript.src = 'https://assets.website-files.com/6484369e35c44b2244386bbd/js/8o8.43d99904f.js';
+      webflowScript.onload = function() {
+          Webflow.ready();
+      };
+      document.head.appendChild(webflowScript);
+  }
+
       const fetchAndInitialize = async () => {  
         const minPrice = document.getElementById('priceFrom').value;  
         const maxPrice = document.getElementById('priceTo').value;
@@ -414,7 +424,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
           } catch (error) {
             console.error('Error adding items:', error);
           }  
-    }
+          reinitializeWebflowInteractions();
+        }
 
 function createItem(product, templateElement) {  
     const newItem = templateElement.cloneNode(true);  
