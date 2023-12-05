@@ -1,4 +1,4 @@
-import { formatShape, formatPrice, formatCarats, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
+import { formatShape, formatPrice, formatCarats, formatLength, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
 (() => {  
