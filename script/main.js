@@ -364,8 +364,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             });
 
             // Map Polish slider values to color codes
-            const polishCodeMin = mapSliderValueToCut(minPolish);
-            const polishCodeMax = mapSliderValueToCut(maxPolish);
+            const polishCodeMin = mapSliderValueToPolish(minPolish);
+            const polishCodeMax = mapSliderValueToPolish(maxPolish);
 
             if (polishCodeMin) {
                 url.searchParams.set('minPolish', polishCodeMin);
@@ -375,8 +375,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             }
 
             // Map Symmetry slider values to color codes
-            const symmetryCodeMin = mapSliderValueToCut(minSymmetry);
-            const symmetryCodeMax = mapSliderValueToCut(maxSymmetry);
+            const symmetryCodeMin = mapSliderValueToSymmetry(minSymmetry);
+            const symmetryCodeMax = mapSliderValueToSymmetry(maxSymmetry);
 
             if (symmetryCodeMin) {
                 url.searchParams.set('minSymmetry', symmetryCodeMin);
