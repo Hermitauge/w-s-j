@@ -21,8 +21,10 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const maxPolish = document.getElementById('maxPolish').value;
         const minSymmetry = document.getElementById('minSymmetry').value;  
         const maxSymmetry = document.getElementById('maxSymmetry').value;
+        const minFluor = document.getElementById('minFluor').value;  
+        const maxFluor = document.getElementById('maxFluor').value;
         showLoadingAnimation();  
-        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry); // Including price filters
+        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor); // Including price filters
         hideLoadingAnimation();  
         updateList(allProducts, listInstance, itemTemplateElement);  
         attachEventListenersToCheckboxes(listInstance, itemTemplateElement, allProducts);  
@@ -32,7 +34,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         attachClarityRangeEventListeners(listInstance, itemTemplateElement);  
         attachCutRangeEventListeners(listInstance, itemTemplateElement);  
         attachPolishRangeEventListeners(listInstance, itemTemplateElement);  
-        attachSymmetryRangeEventListeners(listInstance, itemTemplateElement);  
+        attachSymmetryRangeEventListeners(listInstance, itemTemplateElement); 
+        attachFlourRangeEventListeners(listInstance, itemTemplateElement);  
         updateItemCounters(allProducts, allProducts); // Initially, all products are displayed
     }; 
   
@@ -230,16 +233,32 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         });
       }
 
-      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry) {  
+      function attachFlourRangeEventListeners(listInstance, itemTemplateElement) {
+        const minFluorInput = document.getElementById('minFluor');
+        const maxFluorInput = document.getElementById('maxFluor');
+        const handleLeft = document.querySelector('.rangeslider-handle-left');
+        const handleRight = document.querySelector('.rangeslider-handle-right');
+      
+        // Creating a debounced version of applyAllFilters to prevent overload
+        const debouncedApplyAllFilters = debounce(async () => {
+          await applyAllFilters(listInstance, itemTemplateElement);
+        }, 420); // 250 milliseconds, adjust as needed
+      
+        [minFluorInput, maxFluorInput, handleLeft, handleRight].forEach(element => {
+          element.addEventListener('change', debouncedApplyAllFilters);
+        });
+      }
+
+      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor) {  
         let products = [];  
       
         if (checkedShapes.length === 0) {  
             // Return all products if no shape is selected, filtered by price
-            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry);
+            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor);
         } else {  
             const productsPromises = checkedShapes.map(shape =>  
               // Include price filters in each shape query
-              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry)
+              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor)
             );  
             const productsArrays = await Promise.all(productsPromises);  
             products = interleaveProducts(productsArrays);  
@@ -263,6 +282,8 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const maxPolish = document.getElementById('maxPolish').value;
         const minSymmetry = document.getElementById('minSymmetry').value;  
         const maxSymmetry = document.getElementById('maxSymmetry').value;  
+        const minFluor = document.getElementById('minFluor').value;  
+        const maxFluor = document.getElementById('maxFluor').value;  
         // Check that listInstance and itemTemplateElement are initialized
         if (!listInstance || !itemTemplateElement) {
             console.error('listInstance or itemTemplateElement is not initialized');
@@ -272,7 +293,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         showLoadingAnimation();  
         
         // Fetch and interleave products based on selected shapes and price filters  
-        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry);  
+        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor);  
         
         // Update the list with filtered products  
         await updateList(filteredProducts, listInstance, itemTemplateElement);  
@@ -311,7 +332,11 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const symmetryMapping = ['GD', 'VG', 'EX'];
         return symmetryMapping[Math.min(Math.max(parseInt(value), 0), symmetryMapping.length - 1)];
     }
-      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '') {  
+    function mapSliderValueToFlour(value) {
+      const fluorMapping = ['VST', 'STG', 'MED', 'FNT', 'NON'];
+      return fluorMapping[Math.min(Math.max(parseInt(value), 0), fluorMapping.length - 1)];
+    }
+      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '') {  
         const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
         if (shapeFilter) {  
           url.searchParams.set('shape', encodeURIComponent(shapeFilter));  
@@ -384,6 +409,18 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             if (symmetryCodeMax) {
                 url.searchParams.set('maxSymmetry', symmetryCodeMax);
             }
+
+            // Map Flouresence slider values to color codes
+            const fluorCodeMin = mapSliderValueToFlour(minFluor);
+            const fluorCodeMax = mapSliderValueToFlour(maxFluor);
+
+            if (fluorCodeMin) {
+                url.searchParams.set('minFluor', fluorCodeMin);
+            }
+            if (fluorCodeMax) {
+                url.searchParams.set('maxFluor', fluorCodeMax);
+            }
+
   // Log the API URL parameters  
   console.log(`Fetching products with URL: ${url.href}`);
 
