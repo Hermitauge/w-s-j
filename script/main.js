@@ -76,11 +76,11 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         const labCheckboxLabels = document.querySelectorAll(".lab-checkbox_field");
         labCheckboxLabels.forEach(label => {
             const checkbox = label.querySelector("input[type='checkbox']");
-            const shapeLabel = label.querySelector("span");
+            const labLabel = label.querySelector("span");
 
-          if (checkbox && shapeLabel) { 
+          if (checkbox && labLabel) { 
               checkbox.addEventListener('change', async () => {
-              updateCheckedShapes(shapeLabel.textContent, checkbox.checked);
+                updateCheckedLabs(labLabel, checkbox.checked);
               await applyAllFilters();
             });
           }
