@@ -470,12 +470,12 @@ if (openPanel) {
                   
                   // Extract URL and modify it if it's not null
                   let videoURL = videoElement.textContent.trim();
-                  let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '430/430/autoplay') : '';
+                  let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
               
                   if (modifiedVideoURL) {
                       iframe.src = modifiedVideoURL;
-                      iframe.width = '430';
-                      iframe.height = '430';
+                      iframe.width = '420';
+                      iframe.height = '420';
                       iframe.frameBorder = '0';
                       iframe.allow = 'autoplay; encrypted-media';
                       iframe.allowFullscreen = true;
