@@ -456,29 +456,32 @@ function createItem(product, templateElement) {
 // Assuming newItem is a single DOM element
 
 // Handle the open panel functionality
-const openPanel = newItem.querySelector('.open-panel'); // Assuming a single openPanel
+const openPanel = newItem.querySelector('.open-panel');
 if (openPanel) {
     openPanel.addEventListener('click', function () {
-        const infoPanel = newItem.querySelector('.info-panel'); // Assuming a single infoPanel
+        const infoPanel = newItem.querySelector('.info-panel');
         if (infoPanel) {
             infoPanel.classList.toggle('hide');
 
-            // Create an iframe if it doesn't exist
-            if (!infoPanel.classList.contains('hide') && !infoPanel.querySelector('iframe')) {
-                const innerVideo = infoPanel.querySelector('.inner-vid'); // Assuming a single innerVideo
-                const videoElement = newItem.querySelector('.video-iframe'); // Assuming a single videoElement
-
-                if (videoElement) {
-                    const iframe = document.createElement('iframe');
-                    let modifiedVideoURL = videoElement.getAttribute('data-video-url').replace('500/500', '360/360/autoplay');
-                    iframe.src = modifiedVideoURL;
-                    iframe.width = '360';
-                    iframe.height = '360';
-                    iframe.frameBorder = '0';
-                    iframe.allow = 'autoplay; encrypted-media';
-                    iframe.allowFullscreen = true;
-                    innerVideo.innerHTML = '';
-                    innerVideo.appendChild(iframe);
+            if (!infoPanel.classList.contains('hide')) {
+                const videoElement = newItem.querySelector('.video-iframe');
+                if (videoElement && videoElement.textContent) {
+                  const iframe = document.createElement('iframe');
+                  
+                  // Extract URL and modify it if it's not null
+                  let videoURL = videoElement.textContent.trim();
+                  let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '360/360/autoplay') : '';
+              
+                  if (modifiedVideoURL) {
+                      iframe.src = modifiedVideoURL;
+                      iframe.width = '360';
+                      iframe.height = '360';
+                      iframe.frameBorder = '0';
+                      iframe.allow = 'autoplay; encrypted-media';
+                      iframe.allowFullscreen = true;
+              
+                      videoElement.replaceWith(iframe);
+                  }
                 }
             }
         }
@@ -486,6 +489,7 @@ if (openPanel) {
 }
 
 return newItem;
+
 
   };
 
