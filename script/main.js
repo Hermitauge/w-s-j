@@ -465,7 +465,7 @@ function createItem(product, templateElement) {
                 if (!infoPanel.classList.contains('hidden') && !infoPanel.querySelector('iframe')) {
                     const innerVideo = infoPanel.querySelector('.inner-vid');
                     const iframe = document.createElement('iframe');
-                    let modifiedVideoURL = videoElement.getAttribute('data-video-url').replace('500/500', '360/360/autoplay');
+                    let modifiedVideoURL = mappings[key].replace('500/500', '360/360/autoplay');
                     iframe.src = modifiedVideoURL;
                     iframe.width = '360';
                     iframe.height = '360';
