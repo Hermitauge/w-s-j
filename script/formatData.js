@@ -16,6 +16,18 @@ export function formatLength(length) {
     return length ? length.toFixed(2) : 'N/A';
 }
 
+export function formatWidth(width) {
+    return width ? width.toFixed(2) : 'N/A';
+}
+
+export function formatDepth(depth) {
+    return depth ? depth.toFixed(2) : 'N/A';
+}
+
+export function formatTable(table) {
+    return table ? table.toFixed(2) : 'N/A';
+}
+
 export function formatCut(cut) {
     switch (cut) {
         case 'F':

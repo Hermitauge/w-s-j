@@ -1,4 +1,4 @@
-import { formatShape, formatPrice, formatCarats, formatLength, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
+import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
 (() => {  
@@ -427,10 +427,10 @@ function createItem(product, templateElement) {
         "certNumber": product.diamond.certificate.certNumber,  
         "symmetry": product.diamond.certificate.symmetry,  
         "polish": product.diamond.certificate.polish,  
-        "width": formatDecimal(product.diamond.certificate.width),  
+        "width": formatWidth(product.diamond.certificate.width),  
         "length": formatLength(product.diamond.certificate.length),  
-        "depth": formatDecimal(product.diamond.certificate.depth),  
-        "table": formatDecimal(product.diamond.certificate.table),  
+        "depth": formatDepth(product.diamond.certificate.depth),  
+        "table": formatTable(product.diamond.certificate.table),  
         "girdle": product.diamond.certificate.girdle,  
         "lab": product.diamond.certificate.lab,  
         "carats": formatCarats(product.diamond.certificate.carats),  
