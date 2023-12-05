@@ -80,7 +80,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
 
           if (checkbox && labLabel) { 
               checkbox.addEventListener('change', async () => {
-                updateCheckedLabs(labLabel, checkbox.checked);
+                updateCheckedLabs(labLabel.textContent, checkbox.checked);
               await applyAllFilters();
             });
           }
