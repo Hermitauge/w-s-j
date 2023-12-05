@@ -9,7 +9,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
     // Define the reinitializeWebflowInteractions function
     function reinitializeWebflowInteractions() {
       const webflowScript = document.createElement('script');
-      webflowScript.src = 'https://assets.website-files.com/6484369e35c44b2244386bbd/js/8o8.43d99904f.js';
+      webflowScript.src = 'https://assets-global.website-files.com/65569d42eae09515851ebb5c/js/nivoda-api.278a81426.js';
       webflowScript.onload = function() {
           Webflow.ready();
       };
