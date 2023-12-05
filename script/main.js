@@ -1,4 +1,4 @@
-import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDecimal, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@5173c329612f73943696e670edfa37f65f05de0c/script/formatData.js';  
+import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@d69e7721e6f404c8467d7c1c16d8b366fd108dc0/script/formatData.js';  
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
 (() => {  
