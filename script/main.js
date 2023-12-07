@@ -210,7 +210,7 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
       const setUrlParam = (param, value) => {
           if (value) url.searchParams.set(param, value);
       };
-      
+
       setUrlParam('offset', offset);
       setUrlParam('limit', limit);
 
@@ -336,10 +336,19 @@ function createItem(product, templateElement) {
 // Handle the open panel functionality
 const openPanel = newItem.querySelector('.open-panel');
 if (openPanel) {
-    openPanel.addEventListener('click', function () {
-        const infoPanel = newItem.querySelector('.info-panel');
-        if (infoPanel) {
-            infoPanel.classList.toggle('hide');
+    openPanel.addEventListener('click', function (event) {
+        // Define the main panel and its children
+        const mainPanel = this.closest('.main-panel');
+        const lastChild = mainPanel.children[mainPanel.children.length - 1];
+        const secondToLastChild = mainPanel.children[mainPanel.children.length - 2];
+
+        // Check if the clicked target is not the second-to-last child
+        if (event.target.closest('.td') !== secondToLastChild) {
+            const infoPanel = newItem.querySelector('.info-panel');
+            if (infoPanel) {
+                infoPanel.style.transition = 'all 0.2s ease-out'; // Add transition style
+                infoPanel.classList.toggle('hide');
+            }
 
             if (!infoPanel.classList.contains('hide')) {
                 const videoElement = newItem.querySelector('.video-iframe');
