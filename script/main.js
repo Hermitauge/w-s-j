@@ -334,41 +334,43 @@ function createItem(product, templateElement) {
 // Assuming newItem is a single DOM element
 
 // Handle the open panel functionality
-const openPanel = newItem.querySelector('.open-panel');
-if (openPanel) {
-    openPanel.addEventListener('click', function (event) {
-        // Define the main panel and its children
-        const mainPanel = this.closest('.main-panel');
-        const lastChild = mainPanel.children[mainPanel.children.length - 1];
-        const secondToLastChild = mainPanel.children[mainPanel.children.length - 2];
+const mainPanel = newItem.querySelector('.main-panel');
+if (mainPanel) {
+    mainPanel.addEventListener('click', function (event) {
+        const lastChild = this.children[this.children.length - 1];
+        const secondToLastChild = this.children[this.children.length - 2];
 
-        // Check if the clicked target is not the second-to-last child
-        if (event.target.closest('.td') !== secondToLastChild) {
-            const infoPanel = newItem.querySelector('.info-panel');
-            if (infoPanel) {
-                infoPanel.style.transition = 'all 0.2s ease-out'; // Add transition style
-                infoPanel.classList.toggle('hide');
-            }
+        // If the clicked target is the second-to-last child, exit the function
+        if (event.target.closest('.td') === secondToLastChild) {
+            return;
+        }
 
-            if (!infoPanel.classList.contains('hide')) {
-                const videoElement = newItem.querySelector('.video-iframe');
+        const infoPanel = this.querySelector('.info-panel');
+        if (infoPanel) {
+            // Check if infoPanel is currently hidden
+            const isHidden = infoPanel.classList.contains('hide');
+
+            infoPanel.style.transition = 'all 0.2s ease-out';
+            infoPanel.classList.toggle('hide');
+
+            // If infoPanel was hidden before, now it's shown
+            if (isHidden) {
+                const videoElement = this.querySelector('.video-iframe');
                 if (videoElement && videoElement.textContent) {
-                  const iframe = document.createElement('iframe');
-                  
-                  // Extract URL and modify it if it's not null
-                  let videoURL = videoElement.textContent.trim();
-                  let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
-              
-                  if (modifiedVideoURL) {
-                      iframe.src = modifiedVideoURL;
-                      iframe.width = '420';
-                      iframe.height = '420';
-                      iframe.frameBorder = '0';
-                      iframe.allow = 'autoplay; encrypted-media';
-                      iframe.allowFullscreen = true;
-              
-                      videoElement.replaceWith(iframe);
-                  }
+                    const iframe = document.createElement('iframe');
+                    let videoURL = videoElement.textContent.trim();
+                    let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
+                    
+                    if (modifiedVideoURL) {
+                        iframe.src = modifiedVideoURL;
+                        iframe.width = '420';
+                        iframe.height = '420';
+                        iframe.frameBorder = '0';
+                        iframe.allow = 'autoplay; encrypted-media';
+                        iframe.allowFullscreen = true;
+                        
+                        videoElement.replaceWith(iframe);
+                    }
                 }
             }
         }
