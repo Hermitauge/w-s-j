@@ -334,7 +334,7 @@ function createItem(product, templateElement) {
 // Assuming newItem is a single DOM element
 
 // Handle the open panel functionality
-const openPanel = newItem.querySelector('.open-panel');
+const openPanel = newItem.querySelector('.main-panel');
 if (openPanel) {
     openPanel.addEventListener('click', function () {
         const infoPanel = newItem.querySelector('.info-panel');
