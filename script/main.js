@@ -203,16 +203,17 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
     function mapSliderValue(mapping, value) {
       return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
   }
-  let offset = 0;
-  const limit = 20;
-
-  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = []) {  
-      const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds?offset=${offset}&limit=${limit}');  
+  
+  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 20) {  
+      const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
   
       const setUrlParam = (param, value) => {
           if (value) url.searchParams.set(param, value);
       };
-  
+      
+      setUrlParam('offset', offset);
+      setUrlParam('limit', limit);
+
       setUrlParam('shape', encodeURIComponent(shapeFilter));
       setUrlParam('minPrice', minPrice);
       setUrlParam('maxPrice', maxPrice);
