@@ -319,7 +319,7 @@ function createItem(product, templateElement) {
         "price": formatPrice(product.price),  
     };  
     Object.keys(mappings).forEach(key => {  
-      const elements = newItem.querySelectorAll(`[data-element="${key}"]`);  
+      const elements = newItem.querySelectorAll(`[data-element="${key}"]`);
       elements.forEach(element => {
           if (key === 'supplier_video_link' && element.tagName === 'IFRAME' && mappings[key]) {
               // Only modify the URL if it is not null or undefined
