@@ -325,7 +325,10 @@ function createItem(product, templateElement) {
               // Only modify the URL if it is not null or undefined
               const modifiedVideoURL = mappings[key].replace('500/500', '500/500/');
               element.src = modifiedVideoURL;
-          } else {
+            } else if (key === 'supplier_video_link' && element.classList.contains('vid-source') && mappings[key]) {
+              // Set the SRC attribute for <source> elements
+              element.setAttribute('src', mappings[key]);
+            } else {
               // Set textContent for other elements
               element.textContent = mappings[key];
           }
