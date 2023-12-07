@@ -321,7 +321,7 @@ function createItem(product, templateElement) {
     Object.keys(mappings).forEach(key => {  
       const elements = newItem.querySelectorAll(`[data-element="${key}"]`);  
       elements.forEach(element => {
-          if (key === 'video' && element.tagName === 'IFRAME' && mappings[key]) {
+          if (key === 'supplier_video_link' && element.tagName === 'IFRAME' && mappings[key]) {
               // Only modify the URL if it is not null or undefined
               const modifiedVideoURL = mappings[key].replace('500/500', '500/500/');
               element.src = modifiedVideoURL;
