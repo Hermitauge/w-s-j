@@ -336,10 +336,10 @@ function createItem(product, templateElement) {
 // Handle the open panel functionality
 const openPanel = newItem.querySelector('.main-panel');
 if (openPanel) {
-    openPanel.addEventListener('click', function () {
-        const infoPanel = newItem.querySelector('.info-panel');
-        if (infoPanel) {
-            infoPanel.classList.toggle('hide');
+    openPanel.addEventListener('click', function (event) {
+        if (!event.target.closest('.td .compare')) {
+            const infoPanel = newItem.querySelector('.info-panel');
+            infoPanel?.classList.toggle('hide');
 
             if (!infoPanel.classList.contains('hide')) {
                 const videoElement = newItem.querySelector('.video-iframe');
