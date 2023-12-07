@@ -337,7 +337,7 @@ function createItem(product, templateElement) {
 const openPanel = newItem.querySelector('.main-panel');
 if (openPanel) {
     openPanel.addEventListener('click', function (event) {
-        if (!event.target.closest('.td .compare')) {
+        if (!event.target.closest('.td.compare')) {
             const infoPanel = newItem.querySelector('.info-panel');
             infoPanel?.classList.toggle('hide');
 
