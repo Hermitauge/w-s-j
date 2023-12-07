@@ -296,7 +296,8 @@ function createItem(product, templateElement) {
     const mappings = {  
         "id": product.id,  
         "image": product.diamond.image,  
-        "video": product.diamond.video,  
+        "video": product.diamond.video,
+        "supplier_video_link": product.diamond.video,
         "shape": formatShape(product.diamond.certificate.shape),  
         "clarity": product.diamond.certificate.clarity,  
         "certNumber": product.diamond.certificate.certNumber,  
