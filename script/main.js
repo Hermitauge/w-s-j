@@ -1,70 +1,34 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@d69e7721e6f404c8467d7c1c16d8b366fd108dc0/script/formatData.js';  
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
-(() => {  
-    window.addEventListener('load', async () => {  
-      var listInstance, itemTemplateElement;  
-      var allProducts;  
-  
-      const fetchAndInitialize = async () => {  
-        const minPrice = document.getElementById('priceFrom').value;  
-        const maxPrice = document.getElementById('priceTo').value;
-        const minCarats = document.getElementById('minCarats').value;  
-        const maxCarats = document.getElementById('maxCarats').value;
-        const minColor = document.getElementById('minColor').value;  
-        const maxColor = document.getElementById('maxColor').value;
-        const minClarity = document.getElementById('minClarity').value;  
-        const maxClarity = document.getElementById('maxClarity').value;
-        const minCut = document.getElementById('minCut').value;  
-        const maxCut = document.getElementById('maxCut').value;
-        const minPolish = document.getElementById('minPolish').value;  
-        const maxPolish = document.getElementById('maxPolish').value;
-        const minSymmetry = document.getElementById('minSymmetry').value;  
-        const maxSymmetry = document.getElementById('maxSymmetry').value;
-        const minFluor = document.getElementById('minFluor').value;  
-        const maxFluor = document.getElementById('maxFluor').value;
-        const minTable = document.getElementById('minTable').value;  
-        const maxTable = document.getElementById('maxTable').value;
-        const minDepth = document.getElementById('minDepth').value;  
-        const maxDepth = document.getElementById('maxDepth').value;
-        const minRatio = document.getElementById('minRatio').value;  
-        const maxRatio = document.getElementById('maxRatio').value;
-        showLoadingAnimation();  
-        allProducts = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio); // Including price filters
-        hideLoadingAnimation();  
-        updateList(allProducts, listInstance, itemTemplateElement);  
-        attachEventListenersToCheckboxes(listInstance, itemTemplateElement, allProducts);  
-        attachPriceRangeEventListeners(listInstance, itemTemplateElement);  
-        attachCaratsRangeEventListeners(listInstance, itemTemplateElement);  
-        attachColorsRangeEventListeners(listInstance, itemTemplateElement);  
-        attachClarityRangeEventListeners(listInstance, itemTemplateElement);  
-        attachCutRangeEventListeners(listInstance, itemTemplateElement);  
-        attachPolishRangeEventListeners(listInstance, itemTemplateElement);  
-        attachSymmetryRangeEventListeners(listInstance, itemTemplateElement); 
-        attachFlourRangeEventListeners(listInstance, itemTemplateElement);  
-        attachTableRangeEventListeners(listInstance, itemTemplateElement);  
-        attachDepthRangeEventListeners(listInstance, itemTemplateElement);  
-        attachRatioRangeEventListeners(listInstance, itemTemplateElement);  
-        updateItemCounters(allProducts, allProducts); // Initially, all products are displayed
-    }; 
-  
-      window.fsAttributes = window.fsAttributes || [];  
-      window.fsAttributes.push([  
-        "cmsfilter",  
-        async (filtersInstances) => {  
-          const [filtersInstance] = filtersInstances;  
-          listInstance = filtersInstance.listInstance;  
-          const [firstItem] = listInstance.items;  
-          itemTemplateElement = firstItem.element;  
-  
-          await fetchAndInitialize();  
-        },  
-      ]);  
-  
-      let checkedShapes = [];  // Tracks the currently checked shapes  
-      let checkedLabs = []; // Tracks the currently checked labs
+(() => {
+  window.addEventListener('load', async () => {
+          let listInstance, itemTemplateElement, allProducts;
+          let checkedShapes = [], checkedLabs = [], checkedOrigin = [];
 
+          const fetchAndInitialize = async () => {
+            showLoadingAnimation();
+            allProducts = await fetchProducts('');
+            hideLoadingAnimation();
+            updateList(allProducts, listInstance, itemTemplateElement);
+            attachAllEventListeners(listInstance, itemTemplateElement);
+            updateItemCounters(allProducts, allProducts);
+          };
+          window.fsAttributes = window.fsAttributes || [];
+          window.fsAttributes.push([
+            "cmsfilter"
+            , async (filtersInstances) => {
+              const [filtersInstance] = filtersInstances;
+              listInstance = filtersInstance.listInstance;
+              const [firstItem] = listInstance.items;
+              itemTemplateElement = firstItem.element;
 
+              // Fetch and initialize with all products
+              await fetchAndInitialize();
+            }
+          , ]);
+
+  
       function updateItemCounters(allProducts, displayedProducts) {
         const totalCountElement = document.querySelector('[data-element="total-count"]');
         const totalShownElement = document.querySelector('[data-element="total-shown"]');
@@ -77,253 +41,113 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             totalShownElement.textContent = displayedProducts.length;
         }
     }
-      function attachEventListenersToCheckboxes(listInstance, itemTemplateElement, allProducts) {  
-        const checkboxLabels = document.querySelectorAll(".shape-checkbox_field");  
-        checkboxLabels.forEach(label => {  
-          const checkbox = label.querySelector("input[type='checkbox']");  
-          const shapeLabel = label.querySelector("span");  
-  
-          if (checkbox && shapeLabel) {  
-              checkbox.addEventListener('change', async () => {  
-              updateCheckedShapes(shapeLabel.textContent, checkbox.checked);  
-              await applyAllFilters();  
-            });  
-          }  
-        });
-            // Lab Checkboxes
-        const labCheckboxLabels = document.querySelectorAll(".lab-checkbox_field");
-        labCheckboxLabels.forEach(label => {
-            const checkbox = label.querySelector("input[type='checkbox']");
-            const labLabel = label.querySelector("span");
-
-          if (checkbox && labLabel) { 
-              checkbox.addEventListener('change', async () => {
-                updateCheckedLabs(labLabel.textContent, checkbox.checked);
-              await applyAllFilters();
-            });
+    const attachRangeEventListeners = (minInputId, maxInputId) => {
+      const minInput = document.getElementById(minInputId);
+      const maxInput = document.getElementById(maxInputId);
+      [minInput, maxInput].forEach(element => {
+          if (element) {
+              element.addEventListener('change', debounce(applyAllFilters, 420));
           }
-        });
-      }
+      });
+  };
 
-  
-      function updateCheckedShapes(shape, isChecked) {  
-        if (isChecked) {  
-          checkedShapes.push(shape);  
-        } else {  
-          checkedShapes = checkedShapes.filter(s => s !== shape);  
-        }  
-      }  
-      function updateCheckedLabs(lab, isChecked) {
-        if (isChecked) {
-            checkedLabs.push(lab);
-        } else {
-            checkedLabs = checkedLabs.filter(l => l !== lab);
-        }
-      }
-    
+  const attachCheckboxEventListeners = (checkboxSelector, updateFunction) => {
+      document.querySelectorAll(checkboxSelector).forEach(label => {
+          const checkbox = label.querySelector("input[type='checkbox']");
+          const labelText = label.querySelector("span");
+          if (checkbox && labelText) {
+              checkbox.addEventListener('change', async () => {
+                  updateFunction(labelText.textContent, checkbox.checked);
+                  await applyAllFilters();
+              });
+          }
+      });
+  };
 
-      function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-          const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-          };
+  const updateCheckedShapes = (shape, isChecked) => {
+      checkedShapes = isChecked ? [...checkedShapes, shape] : checkedShapes.filter(s => s !== shape);
+  };
+
+  const updateCheckedLabs = (lab, isChecked) => {
+      checkedLabs = isChecked ? [...checkedLabs, lab] : checkedLabs.filter(l => l !== lab);
+  };
+
+  const updateCheckedOrigin = (origin, isChecked) => {
+    checkedOrigin = isChecked ? [...checkedOrigin, origin] : checkedOrigin.filter(o => o !== origin);
+  };
+
+  const attachAllEventListeners = () => {
+      ['priceFrom', 'priceTo', 'minCarats', 'maxCarats', 'minColor', 'maxColor', 'minClarity', 'maxClarity', 'minCut', 'maxCut', 'minPolish', 'maxPolish', 'minSymmetry', 'maxSymmetry', 'minFluor', 'maxFluor', 'minTable', 'maxTable', 'minDepth', 'maxDepth', 'minRatio', 'maxRatio'].forEach(id => {
+          attachRangeEventListeners(id, id);
+      });
+      attachCheckboxEventListeners('.shape-checkbox_field', updateCheckedShapes);
+      attachCheckboxEventListeners('.lab-checkbox_field', updateCheckedLabs);
+      attachCheckboxEventListeners('.origin-checkbox_field', updateCheckedOrigin);
+  };
+
+  const debounce = (func, wait) => {
+      let timeout;
+      return function executedFunction(...args) {
           clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
-        };
-      }
-      
-      function attachPriceRangeEventListeners(listInstance, itemTemplateElement) {
-        const minPriceInput = document.getElementById('priceFrom');
-        const maxPriceInput = document.getElementById('priceTo');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minPriceInput, maxPriceInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      } 
-      function attachCaratsRangeEventListeners(listInstance, itemTemplateElement) {
-        const minCaratsInput = document.getElementById('minCarats');
-        const maxCaratsInput = document.getElementById('maxCarats');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minCaratsInput, maxCaratsInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
-      function attachColorsRangeEventListeners(listInstance, itemTemplateElement) {
-        const minColorInput = document.getElementById('minColor');
-        const maxColorInput = document.getElementById('maxColor');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minColorInput, maxColorInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
-      function attachClarityRangeEventListeners(listInstance, itemTemplateElement) {
-        const minClarityInput = document.getElementById('minClarity');
-        const maxClarityInput = document.getElementById('maxClarity');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minClarityInput, maxClarityInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
-      function attachCutRangeEventListeners(listInstance, itemTemplateElement) {
-        const minCutInput = document.getElementById('minCut');
-        const maxCutInput = document.getElementById('maxCut');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minCutInput, maxCutInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
+          timeout = setTimeout(() => func(...args), wait);
+      };
+  };
 
-      function attachPolishRangeEventListeners(listInstance, itemTemplateElement) {
-        const minPolishInput = document.getElementById('minPolish');
-        const maxPolishInput = document.getElementById('maxPolish');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minPolishInput, maxPolishInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
 
-      function attachSymmetryRangeEventListeners(listInstance, itemTemplateElement) {
-        const minSymmetryInput = document.getElementById('minSymmetry');
-        const maxSymmetryInput = document.getElementById('maxSymmetry');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minSymmetryInput, maxSymmetryInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
 
-      function attachFlourRangeEventListeners(listInstance, itemTemplateElement) {
-        const minFluorInput = document.getElementById('minFluor');
-        const maxFluorInput = document.getElementById('maxFluor');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minFluorInput, maxFluorInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
 
-      function attachTableRangeEventListeners(listInstance, itemTemplateElement) {
-        const minTableInput = document.getElementById('minTable');
-        const maxTableInput = document.getElementById('maxTable');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minTableInput, maxTableInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
+async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin) {  
+  let products = [];  
 
-      function attachDepthRangeEventListeners(listInstance, itemTemplateElement) {
-        const minDepthInput = document.getElementById('minDepth');
-        const maxDepthInput = document.getElementById('maxDepth');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minDepthInput, maxDepthInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
+  // Check if any filter is set by the user
+  const isFilterSet = value => value !== '' && value != null;
 
-      function attachRatioRangeEventListeners(listInstance, itemTemplateElement) {
-        const minRatioInput = document.getElementById('minRatio');
-        const maxRatioInput = document.getElementById('maxRatio');
-        const handleLeft = document.querySelector('.rangeslider-handle-left');
-        const handleRight = document.querySelector('.rangeslider-handle-right');
-      
-        // Creating a debounced version of applyAllFilters to prevent overload
-        const debouncedApplyAllFilters = debounce(async () => {
-          await applyAllFilters(listInstance, itemTemplateElement);
-        }, 420); // 250 milliseconds, adjust as needed
-      
-        [minRatioInput, maxRatioInput, handleLeft, handleRight].forEach(element => {
-          element.addEventListener('change', debouncedApplyAllFilters);
-        });
-      }
+  // Determine if any filter is applied
+  const isAnyFilterApplied = [minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio].some(isFilterSet) || checkedShapes.length > 0 || checkedLabs.length > 0 || checkedOrigin.length > 0;
 
-      async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio) {  
-        let products = [];  
-      
-        if (checkedShapes.length === 0) {  
-            // Return all products if no shape is selected, filtered by price
-            products = await fetchProducts('', minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio);
-        } else {  
-            const productsPromises = checkedShapes.map(shape =>  
-              // Include price filters in each shape query
-              fetchProducts(shape, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio)
-            );  
-            const productsArrays = await Promise.all(productsPromises);  
-            products = interleaveProducts(productsArrays);  
-        }  
-      
-        console.log('Fetched products:', products);
-        return products;  
-    } 
+  if (!isAnyFilterApplied) {
+      // Return all products if no filters are applied
+      products = await fetchProducts();
+  } else {
+      // Fetch products based on applied filters
+      const shapesToQuery = checkedShapes.length > 0 ? checkedShapes : ['']; 
+      const productsPromises = shapesToQuery.map(shape => 
+        fetchProducts(
+            shape, 
+            isFilterSet(minPrice) ? minPrice : '', 
+            isFilterSet(maxPrice) ? maxPrice : '', 
+            isFilterSet(minCarats) ? minCarats : '', 
+            isFilterSet(maxCarats) ? maxCarats : '', 
+            isFilterSet(minColor) ? minColor : '', 
+            isFilterSet(maxColor) ? maxColor : '', 
+            isFilterSet(minClarity) ? minClarity : '', 
+            isFilterSet(maxClarity) ? maxClarity : '', 
+            isFilterSet(minCut) ? minCut : '', 
+            isFilterSet(maxCut) ? maxCut : '', 
+            checkedLabs, // Assuming checkedLabs is an array and always defined
+            isFilterSet(minPolish) ? minPolish : '', 
+            isFilterSet(maxPolish) ? maxPolish : '', 
+            isFilterSet(minSymmetry) ? minSymmetry : '', 
+            isFilterSet(maxSymmetry) ? maxSymmetry : '', 
+            isFilterSet(minFluor) ? minFluor : '', 
+            isFilterSet(maxFluor) ? maxFluor : '', 
+            isFilterSet(minTable) ? minTable : '', 
+            isFilterSet(maxTable) ? maxTable : '', 
+            isFilterSet(minDepth) ? minDepth : '', 
+            isFilterSet(maxDepth) ? maxDepth : '', 
+            isFilterSet(minRatio) ? minRatio : '', 
+            isFilterSet(maxRatio) ? maxRatio : '',
+            checkedOrigin
+        )
+    );
+    
+      const productsArrays = await Promise.all(productsPromises);
+      products = interleaveProducts(productsArrays);
+  }
+
+  return products;  
+}
+
     async function applyAllFilters() {  
         const minPrice = document.getElementById('priceFrom').value;  
         const maxPrice = document.getElementById('priceTo').value;  
@@ -356,7 +180,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
         showLoadingAnimation();  
         
         // Fetch and interleave products based on selected shapes and price filters  
-        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio);  
+        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin);  
         
         // Update the list with filtered products  
         await updateList(filteredProducts, listInstance, itemTemplateElement);  
@@ -375,151 +199,79 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
     
         return combined;  
     }  
-    function mapSliderValueToColor(value) {
-        const colorMapping = ['J', 'I', 'H', 'G', 'F', 'E', 'D'];
-        return colorMapping[Math.min(Math.max(parseInt(value), 0), colorMapping.length - 1)];
-    }
-    function mapSliderValueToClarity(value) {
-        const clarityMapping = ['SI2', 'SI1', 'VS2', 'VS1', 'VVS2', 'VVS1', 'IF', 'FL'];
-        return clarityMapping[Math.min(Math.max(parseInt(value), 0), clarityMapping.length - 1)];
-    }
-    function mapSliderValueToCut(value) {
-        const cutMapping = ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'];
-        return cutMapping[Math.min(Math.max(parseInt(value), 0), cutMapping.length - 1)];
-    }
-    function mapSliderValueToPolish(value) {
-        const polishMapping = ['GD', 'VG', 'EX'];
-        return polishMapping[Math.min(Math.max(parseInt(value), 0), polishMapping.length - 1)];
-    }
-    function mapSliderValueToSymmetry(value) {
-        const symmetryMapping = ['GD', 'VG', 'EX'];
-        return symmetryMapping[Math.min(Math.max(parseInt(value), 0), symmetryMapping.length - 1)];
-    }
-    function mapSliderValueToFlour(value) {
-      const fluorMapping = ['VST', 'STG', 'MED', 'FNT', 'NON'];
-      return fluorMapping[Math.min(Math.max(parseInt(value), 0), fluorMapping.length - 1)];
-    }
-      async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '') {  
-        const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
-        if (shapeFilter) {  
-          url.searchParams.set('shape', encodeURIComponent(shapeFilter));  
-        }  
-        if (minPrice) {  
-          url.searchParams.set('minPrice', minPrice);  
-        }  
-        if (maxPrice) {  
-          url.searchParams.set('maxPrice', maxPrice);  
-        }  
-        if (minCarats) {  
-            url.searchParams.set('minCarats', minCarats);  
-        }  
-        if (maxCarats) {  
-            url.searchParams.set('maxCarats', maxCarats);  
-        } 
-            // Map color slider values to color codes
-            const colorCodeMin = mapSliderValueToColor(minColor);
-            const colorCodeMax = mapSliderValueToColor(maxColor);
-
-            if (colorCodeMin) {
-                url.searchParams.set('minColor', colorCodeMin);
-            }
-            if (colorCodeMax) {
-                url.searchParams.set('maxColor', colorCodeMax);
-            }
-            // Map clarity slider values to color codes
-            const clarityCodeMin = mapSliderValueToClarity(minClarity);
-            const clarityCodeMax = mapSliderValueToClarity(maxClarity);
-
-            if (clarityCodeMin) {
-                url.searchParams.set('minClarity', clarityCodeMin);
-            }
-            if (clarityCodeMax) {
-                url.searchParams.set('maxClarity', clarityCodeMax);
-            }
-            // Map cut slider values to color codes
-            const cutCodeMin = mapSliderValueToCut(minCut);
-            const cutCodeMax = mapSliderValueToCut(maxCut);
-
-            if (cutCodeMin) {
-                url.searchParams.set('minCut', cutCodeMin);
-            }
-            if (cutCodeMax) {
-                url.searchParams.set('maxCut', cutCodeMax);
-            }
-            // Include lab filters
-            checkedLabs.forEach(lab => {
-              url.searchParams.append('lab', lab);
-            });
-
-            // Map Polish slider values to color codes
-            const polishCodeMin = mapSliderValueToPolish(minPolish);
-            const polishCodeMax = mapSliderValueToPolish(maxPolish);
-
-            if (polishCodeMin) {
-                url.searchParams.set('minPolish', polishCodeMin);
-            }
-            if (polishCodeMax) {
-                url.searchParams.set('maxPolish', polishCodeMax);
-            }
-
-            // Map Symmetry slider values to color codes
-            const symmetryCodeMin = mapSliderValueToSymmetry(minSymmetry);
-            const symmetryCodeMax = mapSliderValueToSymmetry(maxSymmetry);
-
-            if (symmetryCodeMin) {
-                url.searchParams.set('minSymmetry', symmetryCodeMin);
-            }
-            if (symmetryCodeMax) {
-                url.searchParams.set('maxSymmetry', symmetryCodeMax);
-            }
-
-            // Map Flouresence slider values to color codes
-            const fluorCodeMin = mapSliderValueToFlour(minFluor);
-            const fluorCodeMax = mapSliderValueToFlour(maxFluor);
-
-            if (fluorCodeMin) {
-                url.searchParams.set('minFluor', fluorCodeMin);
-            }
-            if (fluorCodeMax) {
-                url.searchParams.set('maxFluor', fluorCodeMax);
-            }
-            // Table
-            if (minTable) {  
-              url.searchParams.set('minTable', minTable);  
-           }  
-            if (maxTable) {  
-              url.searchParams.set('maxTable', maxTable);  
-            } 
-            // Depth
-            if (minDepth) {  
-              url.searchParams.set('minDepth', minDepth);  
-           }  
-            if (maxDepth) {  
-              url.searchParams.set('maxDepth', maxDepth);  
-            } 
-            // nRatio
-            if (minRatio) {  
-              url.searchParams.set('minRatio', minRatio);  
-           }  
-            if (maxRatio) {  
-              url.searchParams.set('maxRatio', maxRatio);  
-            } 
-  // Log the API URL parameters  
-  console.log(`Fetching products with URL: ${url.href}`);
-
-    const response = await fetch(url);  
-    const data = await response.json();
-
-  // Log the array found from the API  
-  console.log('Products array from API:', data.items);  
+    // Unified mapping function for slider values
+    function mapSliderValue(mapping, value) {
+      return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
+  }
   
-    return data.items || [];  
-    }  
+  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = []) {  
+      const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
+  
+      const setUrlParam = (param, value) => {
+          if (value) url.searchParams.set(param, value);
+      };
+  
+      setUrlParam('shape', encodeURIComponent(shapeFilter));
+      setUrlParam('minPrice', minPrice);
+      setUrlParam('maxPrice', maxPrice);
+      setUrlParam('minCarats', minCarats);
+      setUrlParam('maxCarats', maxCarats);
+  
+      const colorMapping = ['J', 'I', 'H', 'G', 'F', 'E', 'D'];
+      setUrlParam('minColor', mapSliderValue(colorMapping, minColor));
+      setUrlParam('maxColor', mapSliderValue(colorMapping, maxColor));
+  
+      const clarityMapping = ['SI2', 'SI1', 'VS2', 'VS1', 'VVS2', 'VVS1', 'IF', 'FL'];
+      setUrlParam('minClarity', mapSliderValue(clarityMapping, minClarity));
+      setUrlParam('maxClarity', mapSliderValue(clarityMapping, maxClarity));
+  
+      const cutMapping = ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'];
+      setUrlParam('minCut', mapSliderValue(cutMapping, minCut));
+      setUrlParam('maxCut', mapSliderValue(cutMapping, maxCut));
+  
+      checkedLabs.forEach(lab => url.searchParams.append('lab', lab));
+      checkedOrigin.forEach(origin => url.searchParams.append('origin', origin));
+
+      const polishMapping = ['GD', 'VG', 'EX'];
+      setUrlParam('minPolish', mapSliderValue(polishMapping, minPolish));
+      setUrlParam('maxPolish', mapSliderValue(polishMapping, maxPolish));
+  
+      const symmetryMapping = ['GD', 'VG', 'EX'];
+      setUrlParam('minSymmetry', mapSliderValue(symmetryMapping, minSymmetry));
+      setUrlParam('maxSymmetry', mapSliderValue(symmetryMapping, maxSymmetry));
+  
+      const fluorMapping = ['VST', 'STG', 'MED', 'FNT', 'NON'];
+      setUrlParam('minFluor', mapSliderValue(fluorMapping, minFluor));
+      setUrlParam('maxFluor', mapSliderValue(fluorMapping, maxFluor));
+  
+      setUrlParam('minTable', minTable);
+      setUrlParam('maxTable', maxTable);
+      setUrlParam('minDepth', minDepth);
+      setUrlParam('maxDepth', maxDepth);
+      setUrlParam('minRatio', minRatio);
+      setUrlParam('maxRatio', maxRatio);
+  
+      console.log(`Fetching products with URL: ${url.href}`);
+      const response = await fetch(url);  
+      const data = await response.json();
+      console.log('Products array from API:', data.items);  
+      return data.items || [];  
+  }
+  
     async function updateList(products, listInstance, itemTemplateElement) {  
         console.log('listInstance:', listInstance);
+
+        // Determine which view is currently active
+        const isGridViewActive = $('#grid-view').hasClass('tab-button-active');
+        
+        // Select the correct template element based on the active view
+        const templateElement = isGridViewActive ? listInstance.items[1].element : listInstance.items[0].element;
+        
+        console.log('templateElement:', templateElement);
         console.log('itemTemplateElement:', itemTemplateElement);
         listInstance.clearItems();  
-        const newItems = products.map(product => createItem(product, itemTemplateElement));  
+        // Create new items using the selected template
+        const newItems = products.map(product => createItem(product, templateElement));
         console.log('New items:', newItems);
     
         // Check if listInstance.addItems is a function
@@ -546,17 +298,20 @@ function createItem(product, templateElement) {
         "clarity": product.diamond.certificate.clarity,  
         "certNumber": product.diamond.certificate.certNumber,  
         "symmetry": product.diamond.certificate.symmetry,  
-        "polish": product.diamond.certificate.polish,  
+        "polish": product.diamond.certificate.polish,
+        "floInt": product.diamond.certificate.floInt,
         "width": product.diamond.certificate.width,  
         "length": product.diamond.certificate.length,  
-        "depth": product.diamond.certificate.depth,  
-        "table": product.diamond.certificate.table,  
+        "depth": product.diamond.certificate.depth,
+        "depthPercentage": product.diamond.certificate.depthPercentage,
+        "table": product.diamond.certificate.table,
         "girdle": product.diamond.certificate.girdle,  
         "lab": product.diamond.certificate.lab,  
         "carats": formatCarats(product.diamond.certificate.carats),  
         "color": product.diamond.certificate.color,  
         "cut": formatCut(product.diamond.certificate.cut),  
-        "availability": product.diamond.availability,  
+        "availability": product.diamond.availability,
+        "mine_of_origin": product.diamond.mine_of_origin,
         "price": formatPrice(product.price),  
     };  
     Object.keys(mappings).forEach(key => {  
