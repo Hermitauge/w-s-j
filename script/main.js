@@ -2,6 +2,10 @@ import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, form
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
 (() => {
+    let currentPage = 1;
+    const pageSize = 20;
+    let isLoading = false;
+
   window.addEventListener('load', async () => {
           let listInstance, itemTemplateElement, allProducts;
           let checkedShapes = [], checkedLabs = [], checkedOrigin = [];
@@ -23,7 +27,6 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
               const [firstItem] = listInstance.items;
               itemTemplateElement = firstItem.element;
 
-              // Fetch and initialize with all products
               await fetchAndInitialize();
             }
           , ]);
@@ -204,14 +207,14 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
       return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
   }
   
-  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 20) {  
+async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, page = 1, limit = 20) {  
       const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
   
       const setUrlParam = (param, value) => {
           if (value) url.searchParams.set(param, value);
       };
       
-      setUrlParam('offset', offset);
+      setUrlParam('offset', (page - 1) * limit);
       setUrlParam('limit', limit);
 
       setUrlParam('shape', encodeURIComponent(shapeFilter));
@@ -261,7 +264,7 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
       return data.items || [];  
   }
   
-    async function updateList(products, listInstance, itemTemplateElement) {  
+    async function updateList(products, listInstance, itemTemplateElement, replace = true) {
         console.log('listInstance:', listInstance);
 
         // Determine which view is currently active
@@ -272,7 +275,9 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
         
         console.log('templateElement:', templateElement);
         console.log('itemTemplateElement:', itemTemplateElement);
-        listInstance.clearItems();  
+        if (replace) {
+            listInstance.clearItems();
+        }
         // Create new items using the selected template
         const newItems = products.map(product => createItem(product, templateElement));
         console.log('New items:', newItems);
@@ -374,7 +379,30 @@ return newItem;
 
 
   };
+    // Function and event listener definitions for infinite scrolling
 
+    function isNearBottom() {
+        const wrapper = document.querySelector('.collection-list-wrapper');
+        return wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 100;
+    }
+
+    async function loadMoreItems() {
+        if (isLoading) return;
+        isLoading = true;
+        showLoadingAnimation();
+        const offset = (currentPage - 1) * pageSize;
+        const newItems = await fetchProducts(offset, pageSize);
+        await updateList(newItems, listInstance, itemTemplateElement, false);
+        hideLoadingAnimation();
+        currentPage++;
+        isLoading = false;
+    }
+
+    document.querySelector('.collection-list-wrapper').addEventListener('scroll', debounce(() => {
+        if (isNearBottom()) {
+            loadMoreItems();
+        }
+    }, 100));
 
 
     });  
