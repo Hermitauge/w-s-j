@@ -88,6 +88,15 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       attachCheckboxEventListeners('.origin-checkbox_field', updateCheckedOrigin);
   };
 
+
+  const debounce = (func, wait) => {
+      let timeout;
+      return function executedFunction(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func(...args), wait);
+      };
+  };
+
     // Function and event listener definitions for infinite scrolling
 
     function isNearBottom() {
@@ -112,16 +121,6 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             loadMoreItems();
         }
     }, 100));
-
-  const debounce = (func, wait) => {
-      let timeout;
-      return function executedFunction(...args) {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func(...args), wait);
-      };
-  };
-
-
 
 
 async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin) {  
