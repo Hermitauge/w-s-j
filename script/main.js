@@ -28,6 +28,24 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             }
           , ]);
 
+          const collectionListWrapper = document.querySelector('.collection-list-wrapper');
+          let isLoadingMoreItems = false;
+          let offset = 0;
+          const limit = 20; // Adjust limit as needed
+      
+          collectionListWrapper.addEventListener('scroll', async () => {
+            // Check if near the bottom of the scrollable area
+            if (collectionListWrapper.scrollHeight - collectionListWrapper.scrollTop <= collectionListWrapper.clientHeight + 300) { // 300px before reaching the bottom
+              if (!isLoadingMoreItems) {
+                isLoadingMoreItems = true;
+                offset += limit;
+                const moreProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin, offset, limit);
+                await updateList(moreProducts, listInstance, itemTemplateElement);
+                isLoadingMoreItems = false;
+              }
+            }
+          });
+
   
       function updateItemCounters(allProducts, displayedProducts) {
         const totalCountElement = document.querySelector('[data-element="total-count"]');
