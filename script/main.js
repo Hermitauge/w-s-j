@@ -30,28 +30,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
               await fetchAndInitialize();
             }
           , ]);
-          function isNearBottom() {
-            const wrapper = document.querySelector('.collection-list-wrapper');
-            return wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 100;
-        }
 
-        async function loadMoreItems() {
-            if (isLoading) return;
-            isLoading = true;
-            showLoadingAnimation();
-            const offset = (currentPage - 1) * pageSize;
-            const newItems = await fetchProducts('', offset, pageSize);
-            await updateList(newItems, listInstance, itemTemplateElement, false);
-            hideLoadingAnimation();
-            currentPage++;
-            isLoading = false;
-        }
-
-        document.querySelector('.collection-list-wrapper').addEventListener('scroll', debounce(() => {
-            if (isNearBottom()) {
-                loadMoreItems();
-            }
-        }, 100));
   
       function updateItemCounters(allProducts, displayedProducts) {
         const totalCountElement = document.querySelector('[data-element="total-count"]');
@@ -108,6 +87,31 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       attachCheckboxEventListeners('.lab-checkbox_field', updateCheckedLabs);
       attachCheckboxEventListeners('.origin-checkbox_field', updateCheckedOrigin);
   };
+
+    // Function and event listener definitions for infinite scrolling
+
+    function isNearBottom() {
+        const wrapper = document.querySelector('.collection-list-wrapper');
+        return wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 100;
+    }
+
+    async function loadMoreItems() {
+        if (isLoading) return;
+        isLoading = true;
+        showLoadingAnimation();
+        const offset = (currentPage - 1) * pageSize;
+        const newItems = await fetchProducts(offset, pageSize);
+        await updateList(newItems, listInstance, itemTemplateElement, false);
+        hideLoadingAnimation();
+        currentPage++;
+        isLoading = false;
+    }
+
+    document.querySelector('.collection-list-wrapper').addEventListener('scroll', debounce(() => {
+        if (isNearBottom()) {
+            loadMoreItems();
+        }
+    }, 100));
 
   const debounce = (func, wait) => {
       let timeout;
@@ -300,7 +304,7 @@ async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', min
             listInstance.clearItems();
         }
         // Create new items using the selected template
-        const newItems = products.map(product => createItem(product, itemTemplateElement));
+        const newItems = products.map(product => createItem(product, templateElement));
         console.log('New items:', newItems);
     
         // Check if listInstance.addItems is a function
