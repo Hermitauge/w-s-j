@@ -279,7 +279,7 @@ async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', min
             listInstance.clearItems();
         }
         // Create new items using the selected template
-        const newItems = products.map(product => createItem(product, templateElement));
+        const newItems = products.map(product => createItem(product, itemTemplateElement));
         console.log('New items:', newItems);
     
         // Check if listInstance.addItems is a function
@@ -376,9 +376,6 @@ if (openPanel) {
 }
 
 return newItem;
-
-
-  };
     // Function and event listener definitions for infinite scrolling
 
     function isNearBottom() {
@@ -403,6 +400,9 @@ return newItem;
             loadMoreItems();
         }
     }, 100));
+
+  };
+
 
 
     });  
