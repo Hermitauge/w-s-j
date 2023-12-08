@@ -316,8 +316,8 @@ function createItem(product, templateElement) {
         "cut": formatCut(product.diamond.certificate.cut),  
         "availability": product.diamond.availability,
         "mine_of_origin": product.diamond.mine_of_origin,
-        "price": formatPrice(product.price),  
-    };  
+        "price": formatPrice(product.price),
+    };
     Object.keys(mappings).forEach(key => {  
       const elements = newItem.querySelectorAll(`[data-element="${key}"]`);
       elements.forEach(element => {
