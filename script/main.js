@@ -2,13 +2,10 @@ import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, form
 import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
 
 (() => {
-    let currentPage = 1;
-    const pageSize = 20;
-    let isLoading = false;
-
   window.addEventListener('load', async () => {
           let listInstance, itemTemplateElement, allProducts;
           let checkedShapes = [], checkedLabs = [], checkedOrigin = [];
+          let offset = 0, limit = 20, fetching = false;
 
           const fetchAndInitialize = async () => {
             showLoadingAnimation();
@@ -17,6 +14,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             updateList(allProducts, listInstance, itemTemplateElement);
             attachAllEventListeners(listInstance, itemTemplateElement);
             updateItemCounters(allProducts, allProducts);
+            setupInfiniteScroll();
           };
           window.fsAttributes = window.fsAttributes || [];
           window.fsAttributes.push([
@@ -31,6 +29,22 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
             }
           , ]);
 
+          function setupInfiniteScroll() {
+            const listContainer = document.querySelector('.collection-list-wrapper');
+            listContainer.addEventListener('scroll', debounce(async () => {
+              if (listContainer.scrollTop + listContainer.clientHeight >= listContainer.scrollHeight - 100 && !fetching) {
+                fetching = true;
+                showLoadingAnimation();
+      
+                const scrollFetched = await fetchProducts(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin, offset, limit);
+      
+                hideLoadingAnimation();
+                await updateList(scrollFetched, listInstance, itemTemplateElement, true);
+                offset += limit;
+                fetching = false;
+              }
+            }, 300));
+          }
   
       function updateItemCounters(allProducts, displayedProducts) {
         const totalCountElement = document.querySelector('[data-element="total-count"]');
@@ -88,7 +102,6 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       attachCheckboxEventListeners('.origin-checkbox_field', updateCheckedOrigin);
   };
 
-
   const debounce = (func, wait) => {
       let timeout;
       return function executedFunction(...args) {
@@ -97,30 +110,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
       };
   };
 
-    // Function and event listener definitions for infinite scrolling
 
-    function isNearBottom() {
-        const wrapper = document.querySelector('.collection-list-wrapper');
-        return wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 100;
-    }
-
-    async function loadMoreItems() {
-        if (isLoading) return;
-        isLoading = true;
-        showLoadingAnimation();
-        const offset = (currentPage - 1) * pageSize;
-        const newItems = await fetchProducts(offset, pageSize);
-        await updateList(newItems, listInstance, itemTemplateElement, false);
-        hideLoadingAnimation();
-        currentPage++;
-        isLoading = false;
-    }
-
-    document.querySelector('.collection-list-wrapper').addEventListener('scroll', debounce(() => {
-        if (isNearBottom()) {
-            loadMoreItems();
-        }
-    }, 100));
 
 
 async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin) {  
@@ -231,14 +221,14 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
       return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
   }
   
-async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, page = 1, limit = 20) {  
+  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 20) {  
       const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
   
       const setUrlParam = (param, value) => {
           if (value) url.searchParams.set(param, value);
       };
       
-      setUrlParam('offset', (page - 1) * limit);
+      setUrlParam('offset', offset);
       setUrlParam('limit', limit);
 
       setUrlParam('shape', encodeURIComponent(shapeFilter));
@@ -288,37 +278,26 @@ async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', min
       return data.items || [];  
   }
   
-    async function updateList(products, listInstance, itemTemplateElement, replace = true) {
+async function updateList(products, listInstance, itemTemplateElement, shouldAppend = false) {
         console.log('listInstance:', listInstance);
-
-        // Determine which view is currently active
         const isGridViewActive = $('#grid-view').hasClass('tab-button-active');
-        
-        // Select the correct template element based on the active view
         const templateElement = isGridViewActive ? listInstance.items[1].element : listInstance.items[0].element;
-        
         console.log('templateElement:', templateElement);
         console.log('itemTemplateElement:', itemTemplateElement);
-        if (replace) {
+        if (!shouldAppend) {
             listInstance.clearItems();
-        }
+        } 
         // Create new items using the selected template
         const newItems = products.map(product => createItem(product, templateElement));
         console.log('New items:', newItems);
     
-        // Check if listInstance.addItems is a function
-        if (typeof listInstance.addItems !== 'function') {
-            console.error('listInstance.addItems is not a function');
-            return;
-        }
-    
         try {
             await listInstance.addItems(newItems);
-            formatDiamondIcon(); // Call the function to format diamond icons
+            formatDiamondIcon();
           } catch (error) {
             console.error('Error adding items:', error);
           }  
-    }
+        }
 
 function createItem(product, templateElement) {  
     const newItem = templateElement.cloneNode(true);  
@@ -400,6 +379,7 @@ if (openPanel) {
 }
 
 return newItem;
+
 
   };
 
