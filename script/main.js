@@ -248,7 +248,7 @@ async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCar
       return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
   }
   
-  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 20) {  
+  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 12) {  
       const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
   
       const setUrlParam = (param, value) => {
