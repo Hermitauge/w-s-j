@@ -5,7 +5,7 @@ import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr
   window.addEventListener('load', async () => {
           let listInstance, itemTemplateElement, allProducts;
           let checkedShapes = [], checkedLabs = [], checkedOrigin = [];
-          let offset = 0, limit = 20, fetching = false;
+          let offset = 0, limit = 12, fetching = false;
 
           const fetchAndInitialize = async () => {
             showLoadingAnimation();
