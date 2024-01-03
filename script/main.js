@@ -1,416 +1,337 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@d69e7721e6f404c8467d7c1c16d8b366fd108dc0/script/formatData.js';  
-import { showLoadingAnimation, hideLoadingAnimation } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@54fed807015947b7220694ee5b5941b193470e2e/script/loadingAnimation.js';
+import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
 
 (() => {
-  window.addEventListener('load', async () => {
-          let listInstance, itemTemplateElement, allProducts;
-          let checkedShapes = [], checkedLabs = [], checkedOrigin = [];
-          let offset = 0, limit = 12, fetching = false;
+    // Define all your functions first
+    async function fetchProductsForFilters(filters, mappings, currentPage, limit) {
+        console.log(`Page Number in fetchProductsForFilters: ${currentPage}`);
+        const mapSliderValue = (mapping, value) => {return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];};
+        const mappingConfig = {minCut: mappings.cut, maxCut: mappings.cut, minColor: mappings.color, maxColor: mappings.color, minClarity: mappings.clarity, maxClarity: mappings.clarity, minPolish: mappings.polish, maxPolish: mappings.polish, minSymmetry: mappings.symmetry, maxSymmetry: mappings.symmetry, minFluor: mappings.fluor, maxFluor: mappings.fluor};
+        Object.entries(mappingConfig).forEach(([filterKey, mapping]) => {if (filters.hasOwnProperty(filterKey)) {filters[filterKey] = mapSliderValue(mapping, filters[filterKey]);}});
+        const isFilterSet = value => value !== '' && value != null;
+        const isAnyFilterApplied = Object.values(filters).some(isFilterSet) || 
+            filters.checkedShapes.length > 0 || 
+            filters.checkedLabs.length > 0 || 
+            filters.checkedOrigin.length > 0;
 
-          const fetchAndInitialize = async () => {
-            showLoadingAnimation();
-            allProducts = await fetchProducts('');
-            hideLoadingAnimation();
-            updateList(allProducts, listInstance, itemTemplateElement);
-            attachAllEventListeners(listInstance, itemTemplateElement);
-            updateItemCounters(allProducts, allProducts);
-            setupInfiniteScroll();
-          };
-          window.fsAttributes = window.fsAttributes || [];
-          window.fsAttributes.push([
-            "cmsfilter"
-            , async (filtersInstances) => {
-              const [filtersInstance] = filtersInstances;
-              listInstance = filtersInstance.listInstance;
-              const [firstItem] = listInstance.items;
-              itemTemplateElement = firstItem.element;
-
-              await fetchAndInitialize();
+            let products = [];
+            try {
+                let productsPromises = [];
+                if (!isAnyFilterApplied) {
+                    productsPromises.push(fetchProducts({}, currentPage, limit));
+                } else {
+                    const preparedFilters = {};
+                    Object.entries(filters).forEach(([key, value]) => {
+                        preparedFilters[key] = Array.isArray(value) ? value.join(',') : (isFilterSet(value) ? value : '');
+                    });
+        
+                    productsPromises.push(fetchProducts(preparedFilters, currentPage, limit));
+                }
+        
+                const productsArrays = await Promise.all(productsPromises);
+                products = interleaveProducts(productsArrays.map(productArray => [productArray]));
+            } catch (error) {
+                console.error('Error fetching products:', error); // Log any errors
             }
-          , ]);
+        
+            return products;
+        }
+        
 
-          function setupInfiniteScroll() {
+
+        function interleaveProducts(productsArrays) {
+            if (!Array.isArray(productsArrays) || productsArrays.length === 0) {
+                console.error('interleaveProducts was given an empty or invalid array');
+                return [];
+            }
+        
+            // If it's already a single array, just return it
+            console.log('First array in productsArrays:', productsArrays[0]);
+            if (productsArrays.length === 1) {
+                return productsArrays[0];
+}
+        
+            let combined = [];
+            let longestArrayLength = Math.max(...productsArrays.map(arr => arr.length));
+        
+            for (let i = 0; i < longestArrayLength; i++) {
+                productsArrays.forEach(arr => {
+                    if (i < arr.length) combined.push(arr[i]);
+                });
+            }
+        
+            return combined;
+        }
+
+        // API Fetch Products 
+        async function fetchProducts(filters, page = 1, limit = 20) {
+            const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');
+            console.log(`Page Number: ${page}`);
+        
+            const setUrlParam = (param, value) => {
+                if (value) url.searchParams.set(param, value);
+            };
+        
+            setUrlParam('page', page);
+            setUrlParam('limit', limit);
+        
+            Object.entries(filters).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    value.forEach(v => url.searchParams.append(key, v));
+                } else {
+                    setUrlParam(key, value);
+                }
+            });
+        
+            console.log(`Fetching products with URL: ${url.href}`);
+            const response = await fetch(url);  
+            const data = await response.json();
+            console.log('Products array from API:', data.items);  
+            return data.items || [];  
+        }
+
+        async function updateList(products, listInstance, itemTemplateElement, shouldAppend = false) {
+            console.log('listInstance:', listInstance);
+            console.log('itemTemplateElement:', itemTemplateElement);
+            console.log('Products before mapping:', products); // Log the products array before mapping
+        
+            if (!shouldAppend) {
+                listInstance.clearItems();
+            }
+        
+            // Create new items using the selected template
+            const newItems = products.map(product => {
+                try {
+                    return createItem(product, itemTemplateElement); // Use itemTemplateElement here
+                } catch (error) {
+                    console.error('Error creating item:', error); // Log any errors during item creation
+                    return null; // Return null or some error indicator if an item fails to create
+                }
+            }).filter(item => item !== null); // Filter out any nulls or error indicators
+        
+            console.log('New items:', newItems); // Log the new items array after mapping
+        
+            try {
+                await listInstance.addItems(newItems);
+                formatDiamondIcon();
+            } catch (error) {
+                console.error('Error adding items:', error);
+            }
+        }
+
+        function createItem(product, templateElement) {  
+            if (!product.diamond) {
+                console.error('Product does not have a diamond property:', product);
+                return null;
+            }
+            const newItem = templateElement.cloneNode(true);  
+            const mappings = {  
+                "id": product.id,  
+                "image": product.diamond.image,  
+                "video": product.diamond.video,
+                "supplier_video_link": product.diamond.video,
+                "shape": formatShape(product.diamond.certificate.shape),  
+                "clarity": product.diamond.certificate.clarity,  
+                "certNumber": product.diamond.certificate.certNumber,  
+                "symmetry": product.diamond.certificate.symmetry,  
+                "polish": product.diamond.certificate.polish,
+                "floInt": product.diamond.certificate.floInt,
+                "width": product.diamond.certificate.width,  
+                "length": product.diamond.certificate.length,  
+                "depth": product.diamond.certificate.depth,
+                "depthPercentage": product.diamond.certificate.depthPercentage,
+                "table": product.diamond.certificate.table,
+                "girdle": product.diamond.certificate.girdle,  
+                "lab": product.diamond.certificate.lab,  
+                "carats": formatCarats(product.diamond.certificate.carats),  
+                "color": product.diamond.certificate.color,  
+                "cut": formatCut(product.diamond.certificate.cut),  
+                "availability": product.diamond.availability,
+                "mine_of_origin": product.diamond.mine_of_origin,
+                "price": formatPrice(product.price),
+            };
+            Object.keys(mappings).forEach(key => {  
+              const elements = newItem.querySelectorAll(`[data-element="${key}"]`);
+              elements.forEach(element => {
+                  if (key === 'supplier_video_linkk' && element.tagName === 'IFRAME' && mappings[key]) {
+                      // Only modify the URL if it is not null or undefined
+                      const modifiedVideoURL = mappings[key].replace('500/500', '500/500/');
+                      element.src = modifiedVideoURL;
+                    } else if (key === 'supplier_video_linkk' && element.classList.contains('vid-sourcee') && mappings[key]) {
+                      // Set the SRC attribute for <source> elements
+                      element.setAttribute('src', mappings[key]);
+                    } else {
+                      // Set textContent for other elements
+                      element.textContent = mappings[key];
+                  }
+              });
+          }); 
+        
+        // Handle the open panel functionality
+        const openPanel = newItem.querySelector('.main-panel');
+        if (openPanel) {
+            openPanel.addEventListener('click', function (event) {
+                if (!event.target.closest('.td.compare')) {
+                    const infoPanel = newItem.querySelector('.info-panel');
+                    infoPanel?.classList.toggle('hide');
+        
+                    if (!infoPanel.classList.contains('hide')) {
+                        const videoElement = newItem.querySelector('.video-iframee');
+                        if (videoElement && videoElement.textContent) {
+                          const iframe = document.createElement('iframe');
+                          
+                          // Extract URL and modify it if it's not null
+                          let videoURL = videoElement.textContent.trim();
+                          let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
+                      
+                          if (modifiedVideoURL) {
+                              iframe.src = modifiedVideoURL;
+                              iframe.width = '420';
+                              iframe.height = '420';
+                              iframe.frameBorder = '0';
+                              iframe.allow = 'autoplay; encrypted-media';
+                              iframe.allowFullscreen = true;
+                      
+                              videoElement.replaceWith(iframe);
+                          }
+                        }
+                    }
+                }
+            });
+        }
+        
+        return newItem;
+        
+        };
+
+        function setupInfiniteScroll() {
             const listContainer = document.querySelector('.collection-list-wrapper');
             listContainer.addEventListener('scroll', debounce(async () => {
-              if (listContainer.scrollTop + listContainer.clientHeight >= listContainer.scrollHeight - 100 && !fetching) {
-                fetching = true;
-                showLoadingAnimation();
-      
-                const scrollFetched = await fetchProductsForFilters(
-                    checkedShapes, 
-                    '', // Replace with the current minPrice if needed
-                    '', // Replace with the current maxPrice if needed
-                    '', // Replace with the current minCarats if needed
-                    '', // Replace with the current maxCarats if needed
-                    '', // Replace with the current minColor if needed
-                    '', // Replace with the current maxColor if needed
-                    '', // Replace with the current minClarity if needed
-                    '', // Replace with the current maxClarity if needed
-                    '', // Replace with the current minCut if needed
-                    '', // Replace with the current maxCut if needed
-                    checkedLabs, 
-                    '', // Replace with the current minPolish if needed
-                    '', // Replace with the current maxPolish if needed
-                    '', // Replace with the current minSymmetry if needed
-                    '', // Replace with the current maxSymmetry if needed
-                    '', // Replace with the current minFluor if needed
-                    '', // Replace with the current maxFluor if needed
-                    '', // Replace with the current minTable if needed
-                    '', // Replace with the current maxTable if needed
-                    '', // Replace with the current minDepth if needed
-                    '', // Replace with the current maxDepth if needed
-                    '', // Replace with the current minRatio if needed
-                    '', // Replace with the current maxRatio if needed
-                    checkedOrigin, 
-                    offset, 
-                    limit
-                  );
-                hideLoadingAnimation();
-                await updateList(scrollFetched, listInstance, itemTemplateElement, true);
-                offset += limit;
-                fetching = false;
-              }
+                if (listContainer.scrollTop + listContainer.clientHeight >= listContainer.scrollHeight - preloadingThreshold && !fetching) {
+                    fetching = true;
+                    showLoadingAnimation();
+        
+                    if (currentPage < maxPage && !requestedPages.includes(currentPage)) {
+                        console.log(`Current Page in setupInfiniteScroll: ${currentPage}`);
+                        requestedPages.push(currentPage);
+        
+                        const scrollFetched = await fetchProductsForFilters(filters, mappings, currentPage, limit);
+        
+                        // Only update the list and increment the page if new products were fetched
+                        if (scrollFetched.length > 0) {
+                            await updateList(scrollFetched, listInstance, itemTemplateElement, true);
+                            currentPage++;
+                            console.log(`New current page after update: ${currentPage}`);
+                        } else {
+                            // Handle the case where no new products are returned (e.g., end of list)
+                            console.log('No more products to fetch');
+                        }
+                        hideLoadingAnimation();
+                        fetching = false;
+                    }
+                }
             }, 300));
-          }
-  
-      function updateItemCounters(allProducts, displayedProducts) {
-        const totalCountElement = document.querySelector('[data-element="total-count"]');
-        const totalShownElement = document.querySelector('[data-element="total-shown"]');
-    
-        if (totalCountElement) {
-            totalCountElement.textContent = allProducts.length;
         }
+
+    // Now define the functions that use the above functions
+    const fetchAndInitialize = async () => {
+        showLoadingAnimation();
+        try {
+            // Fetch products with filters
+            allProducts = await fetchProductsForFilters(filters, mappings, currentPage, limit);
+            console.log('Products after fetching:', allProducts);
+            console.log('Products after fetching and before interleaving:', allProducts);
     
-        if (totalShownElement) {
-            totalShownElement.textContent = displayedProducts.length;
+            // Interleave products if necessary
+            const interleavedProducts = interleaveProducts(allProducts);
+            console.log('Products after interleaving:', interleavedProducts);
+    
+            // Update the list with the fetched (and potentially interleaved) products
+            await updateList(interleavedProducts, listInstance, itemTemplateElement);
+    
+            // Setup infinite scroll after list is updated
+            setupInfiniteScroll();
+        } catch (error) {
+            console.error('Error during fetch and initialize:', error);
+        } finally {
+            hideLoadingAnimation();
         }
-    }
-    const attachRangeEventListeners = (minInputId, maxInputId) => {
-      const minInput = document.getElementById(minInputId);
-      const maxInput = document.getElementById(maxInputId);
-      [minInput, maxInput].forEach(element => {
-          if (element) {
-              element.addEventListener('change', debounce(applyAllFilters, 420));
-          }
-      });
-  };
+    };
 
-  const attachCheckboxEventListeners = (checkboxSelector, updateFunction) => {
-      document.querySelectorAll(checkboxSelector).forEach(label => {
-          const checkbox = label.querySelector("input[type='checkbox']");
-          const labelText = label.querySelector("span");
-          if (checkbox && labelText) {
-              checkbox.addEventListener('change', async () => {
-                  updateFunction(labelText.textContent, checkbox.checked);
-                  await applyAllFilters();
-              });
-          }
-      });
-  };
-
-  const updateCheckedShapes = (shape, isChecked) => {
-      checkedShapes = isChecked ? [...checkedShapes, shape] : checkedShapes.filter(s => s !== shape);
-  };
-
-  const updateCheckedLabs = (lab, isChecked) => {
-      checkedLabs = isChecked ? [...checkedLabs, lab] : checkedLabs.filter(l => l !== lab);
-  };
-
-  const updateCheckedOrigin = (origin, isChecked) => {
-    checkedOrigin = isChecked ? [...checkedOrigin, origin] : checkedOrigin.filter(o => o !== origin);
-  };
-
-  const attachAllEventListeners = () => {
-      ['priceFrom', 'priceTo', 'minCarats', 'maxCarats', 'minColor', 'maxColor', 'minClarity', 'maxClarity', 'minCut', 'maxCut', 'minPolish', 'maxPolish', 'minSymmetry', 'maxSymmetry', 'minFluor', 'maxFluor', 'minTable', 'maxTable', 'minDepth', 'maxDepth', 'minRatio', 'maxRatio'].forEach(id => {
-          attachRangeEventListeners(id, id);
-      });
-      attachCheckboxEventListeners('.shape-checkbox_field', updateCheckedShapes);
-      attachCheckboxEventListeners('.lab-checkbox_field', updateCheckedLabs);
-      attachCheckboxEventListeners('.origin-checkbox_field', updateCheckedOrigin);
-  };
-
-  const debounce = (func, wait) => {
-      let timeout;
-      return function executedFunction(...args) {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func(...args), wait);
-      };
-  };
-
-
-
-
-async function fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin) {  
-  let products = [];  
-
-  // Check if any filter is set by the user
-  const isFilterSet = value => value !== '' && value != null;
-
-  // Determine if any filter is applied
-  const isAnyFilterApplied = [minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio].some(isFilterSet) || checkedShapes.length > 0 || checkedLabs.length > 0 || checkedOrigin.length > 0;
-
-  if (!isAnyFilterApplied) {
-      // Return all products if no filters are applied
-      products = await fetchProducts();
-  } else {
-      // Fetch products based on applied filters
-      const shapesToQuery = checkedShapes.length > 0 ? checkedShapes : ['']; 
-      const productsPromises = shapesToQuery.map(shape => 
-        fetchProducts(
-            shape, 
-            isFilterSet(minPrice) ? minPrice : '', 
-            isFilterSet(maxPrice) ? maxPrice : '', 
-            isFilterSet(minCarats) ? minCarats : '', 
-            isFilterSet(maxCarats) ? maxCarats : '', 
-            isFilterSet(minColor) ? minColor : '', 
-            isFilterSet(maxColor) ? maxColor : '', 
-            isFilterSet(minClarity) ? minClarity : '', 
-            isFilterSet(maxClarity) ? maxClarity : '', 
-            isFilterSet(minCut) ? minCut : '', 
-            isFilterSet(maxCut) ? maxCut : '', 
-            checkedLabs, // Assuming checkedLabs is an array and always defined
-            isFilterSet(minPolish) ? minPolish : '', 
-            isFilterSet(maxPolish) ? maxPolish : '', 
-            isFilterSet(minSymmetry) ? minSymmetry : '', 
-            isFilterSet(maxSymmetry) ? maxSymmetry : '', 
-            isFilterSet(minFluor) ? minFluor : '', 
-            isFilterSet(maxFluor) ? maxFluor : '', 
-            isFilterSet(minTable) ? minTable : '', 
-            isFilterSet(maxTable) ? maxTable : '', 
-            isFilterSet(minDepth) ? minDepth : '', 
-            isFilterSet(maxDepth) ? maxDepth : '', 
-            isFilterSet(minRatio) ? minRatio : '', 
-            isFilterSet(maxRatio) ? maxRatio : '',
-            checkedOrigin
-        )
-    );
+    const handleFilterChange = async (event) => {
+        const filterElement = event.target;
+        const filterType = filterElement.getAttribute('data-filter');
     
-      const productsArrays = await Promise.all(productsPromises);
-      products = interleaveProducts(productsArrays);
-  }
+        if (filterType) {
+            if (filterElement.type === 'checkbox') {
+                const checkboxLabel = filterElement.closest('label').querySelector("span");
+                const filterValue = checkboxLabel ? checkboxLabel.textContent : null;
+    
+                if (filterElement.checked) {
+                    filters[filterType] = filters[filterType] || [];
+                    if (filterValue && !filters[filterType].includes(filterValue)) {
+                        filters[filterType].push(filterValue);
+                    }
+                } else {
+                    filters[filterType] = filters[filterType].filter(val => val !== filterValue);
+                }
+            } else {
+                filters[filterType] = filterElement.value;
+            }
+    
+            await applyAllFilters();
+        }
+    };
 
-  return products;  
-}
-
-    async function applyAllFilters() {  
-        const minPrice = document.getElementById('priceFrom').value;  
-        const maxPrice = document.getElementById('priceTo').value;  
-        const minCarats = document.getElementById('minCarats').value;  
-        const maxCarats = document.getElementById('maxCarats').value;  
-        const minColor = document.getElementById('minColor').value;  
-        const maxColor = document.getElementById('maxColor').value;  
-        const minClarity = document.getElementById('minClarity').value;  
-        const maxClarity = document.getElementById('maxClarity').value;  
-        const minCut = document.getElementById('minCut').value;  
-        const maxCut = document.getElementById('maxCut').value;
-        const minPolish = document.getElementById('minPolish').value;  
-        const maxPolish = document.getElementById('maxPolish').value;
-        const minSymmetry = document.getElementById('minSymmetry').value;  
-        const maxSymmetry = document.getElementById('maxSymmetry').value;  
-        const minFluor = document.getElementById('minFluor').value;  
-        const maxFluor = document.getElementById('maxFluor').value;
-        const minTable = document.getElementById('minTable').value;  
-        const maxTable = document.getElementById('maxTable').value; 
-        const minDepth = document.getElementById('minDepth').value;  
-        const maxDepth = document.getElementById('maxDepth').value; 
-        const minRatio = document.getElementById('minRatio').value;  
-        const maxRatio = document.getElementById('maxRatio').value; 
-        // Check that listInstance and itemTemplateElement are initialized
+    const applyAllFilters = async () => {
         if (!listInstance || !itemTemplateElement) {
             console.error('listInstance or itemTemplateElement is not initialized');
             return;
         }
-        
-        showLoadingAnimation();  
-        
-        // Fetch and interleave products based on selected shapes and price filters  
-        const filteredProducts = await fetchProductsForFilters(checkedShapes, minPrice, maxPrice, minCarats, maxCarats, minColor, maxColor, minClarity, maxClarity, minCut, maxCut, checkedLabs, minPolish, maxPolish, minSymmetry, maxSymmetry, minFluor, maxFluor, minTable, maxTable, minDepth, maxDepth, minRatio, maxRatio, checkedOrigin);  
-        
-        // Update the list with filtered products  
+    
+        showLoadingAnimation();
+        const filteredProducts = await fetchProductsForFilters(filters, mappings, currentPage, limit);
         await updateList(filteredProducts, listInstance, itemTemplateElement);  
-        updateItemCounters(allProducts, filteredProducts); // Update counts after filtering
-        hideLoadingAnimation();  
-    }
-      function interleaveProducts(productsArrays) {  
-        let combined = [];  
-        let longestArrayLength = Math.max(...productsArrays.map(arr => arr.length));  
-    
-        for (let i = 0; i < longestArrayLength; i++) {  
-            productsArrays.forEach(arr => {  
-                if (i < arr.length) combined.push(arr[i]);  
-            });  
-        }  
-    
-        return combined;  
-    }  
-    // Unified mapping function for slider values
-    function mapSliderValue(mapping, value) {
-      return mapping[Math.min(Math.max(parseInt(value), 0), mapping.length - 1)];
-  }
-  
-  async function fetchProducts(shapeFilter = '', minPrice = '', maxPrice = '', minCarats = '', maxCarats = '', minColor = '', maxColor = '', minClarity = '', maxClarity = '', minCut = '', maxCut = '', checkedLabs = [], minPolish = '', maxPolish = '', minSymmetry = '', maxSymmetry = '', minFluor = '', maxFluor = '', minTable = '', maxTable = '', minDepth = '', maxDepth = '', minRatio = '', maxRatio = '', checkedOrigin = [], offset = 0, limit = 12) {  
-      const url = new URL('https://57urluwych.execute-api.us-west-1.amazonaws.com/live/diamonds');  
-  
-      const setUrlParam = (param, value) => {
-          if (value) url.searchParams.set(param, value);
-      };
-      
-      setUrlParam('offset', offset);
-      setUrlParam('limit', limit);
-
-      setUrlParam('shape', encodeURIComponent(shapeFilter));
-      setUrlParam('minPrice', minPrice);
-      setUrlParam('maxPrice', maxPrice);
-      setUrlParam('minCarats', minCarats);
-      setUrlParam('maxCarats', maxCarats);
-  
-      const colorMapping = ['J', 'I', 'H', 'G', 'F', 'E', 'D'];
-      setUrlParam('minColor', mapSliderValue(colorMapping, minColor));
-      setUrlParam('maxColor', mapSliderValue(colorMapping, maxColor));
-  
-      const clarityMapping = ['SI2', 'SI1', 'VS2', 'VS1', 'VVS2', 'VVS1', 'IF', 'FL'];
-      setUrlParam('minClarity', mapSliderValue(clarityMapping, minClarity));
-      setUrlParam('maxClarity', mapSliderValue(clarityMapping, maxClarity));
-  
-      const cutMapping = ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'];
-      setUrlParam('minCut', mapSliderValue(cutMapping, minCut));
-      setUrlParam('maxCut', mapSliderValue(cutMapping, maxCut));
-  
-      checkedLabs.forEach(lab => url.searchParams.append('lab', lab));
-      checkedOrigin.forEach(origin => url.searchParams.append('origin', origin));
-
-      const polishMapping = ['GD', 'VG', 'EX'];
-      setUrlParam('minPolish', mapSliderValue(polishMapping, minPolish));
-      setUrlParam('maxPolish', mapSliderValue(polishMapping, maxPolish));
-  
-      const symmetryMapping = ['GD', 'VG', 'EX'];
-      setUrlParam('minSymmetry', mapSliderValue(symmetryMapping, minSymmetry));
-      setUrlParam('maxSymmetry', mapSliderValue(symmetryMapping, maxSymmetry));
-  
-      const fluorMapping = ['VST', 'STG', 'MED', 'FNT', 'NON'];
-      setUrlParam('minFluor', mapSliderValue(fluorMapping, minFluor));
-      setUrlParam('maxFluor', mapSliderValue(fluorMapping, maxFluor));
-  
-      setUrlParam('minTable', minTable);
-      setUrlParam('maxTable', maxTable);
-      setUrlParam('minDepth', minDepth);
-      setUrlParam('maxDepth', maxDepth);
-      setUrlParam('minRatio', minRatio);
-      setUrlParam('maxRatio', maxRatio);
-  
-      console.log(`Fetching products with URL: ${url.href}`);
-      const response = await fetch(url);  
-      const data = await response.json();
-      console.log('Products array from API:', data.items);  
-      return data.items || [];  
-  }
-  
-async function updateList(products, listInstance, itemTemplateElement, shouldAppend = false) {
-        console.log('listInstance:', listInstance);
-        const isGridViewActive = $('#grid-view').hasClass('tab-button-active');
-        const templateElement = isGridViewActive ? listInstance.items[1].element : listInstance.items[0].element;
-        console.log('templateElement:', templateElement);
-        console.log('itemTemplateElement:', itemTemplateElement);
-        if (!shouldAppend) {
-            listInstance.clearItems();
-        } 
-        // Create new items using the selected template
-        const newItems = products.map(product => createItem(product, templateElement));
-        console.log('New items:', newItems);
-    
-        try {
-            await listInstance.addItems(newItems);
-            formatDiamondIcon();
-          } catch (error) {
-            console.error('Error adding items:', error);
-          }  
-        }
-
-function createItem(product, templateElement) {  
-    const newItem = templateElement.cloneNode(true);  
-    const mappings = {  
-        "id": product.id,  
-        "image": product.diamond.image,  
-        "video": product.diamond.video,
-        "supplier_video_link": product.diamond.video,
-        "shape": formatShape(product.diamond.certificate.shape),  
-        "clarity": product.diamond.certificate.clarity,  
-        "certNumber": product.diamond.certificate.certNumber,  
-        "symmetry": product.diamond.certificate.symmetry,  
-        "polish": product.diamond.certificate.polish,
-        "floInt": product.diamond.certificate.floInt,
-        "width": product.diamond.certificate.width,  
-        "length": product.diamond.certificate.length,  
-        "depth": product.diamond.certificate.depth,
-        "depthPercentage": product.diamond.certificate.depthPercentage,
-        "table": product.diamond.certificate.table,
-        "girdle": product.diamond.certificate.girdle,  
-        "lab": product.diamond.certificate.lab,  
-        "carats": formatCarats(product.diamond.certificate.carats),  
-        "color": product.diamond.certificate.color,  
-        "cut": formatCut(product.diamond.certificate.cut),  
-        "availability": product.diamond.availability,
-        "mine_of_origin": product.diamond.mine_of_origin,
-        "price": formatPrice(product.price),
+        hideLoadingAnimation();
+        
     };
-    Object.keys(mappings).forEach(key => {  
-      const elements = newItem.querySelectorAll(`[data-element="${key}"]`);
-      elements.forEach(element => {
-          if (key === 'supplier_video_link' && element.tagName === 'IFRAME' && mappings[key]) {
-              // Only modify the URL if it is not null or undefined
-              const modifiedVideoURL = mappings[key].replace('500/500', '500/500/');
-              element.src = modifiedVideoURL;
-            } else if (key === 'supplier_video_link' && element.classList.contains('vid-source') && mappings[key]) {
-              // Set the SRC attribute for <source> elements
-              element.setAttribute('src', mappings[key]);
-            } else {
-              // Set textContent for other elements
-              element.textContent = mappings[key];
-          }
-      });
-  }); 
-    // Handle the open panel functionality
-// Assuming newItem is a single DOM element
 
-// Handle the open panel functionality
-const openPanel = newItem.querySelector('.main-panel');
-if (openPanel) {
-    openPanel.addEventListener('click', function (event) {
-        if (!event.target.closest('.td.compare')) {
-            const infoPanel = newItem.querySelector('.info-panel');
-            infoPanel?.classList.toggle('hide');
+    // Define your variables and event listeners
+    let listInstance, itemTemplateElement, allProducts;
+    let limit = 20, fetching = false;
+    let currentPage = 1;
+    let maxPage = 20;
+    let requestedPages = [];
+    let preloadingThreshold = 30;
 
-            if (!infoPanel.classList.contains('hide')) {
-                const videoElement = newItem.querySelector('.video-iframe');
-                if (videoElement && videoElement.textContent) {
-                  const iframe = document.createElement('iframe');
-                  
-                  // Extract URL and modify it if it's not null
-                  let videoURL = videoElement.textContent.trim();
-                  let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
-              
-                  if (modifiedVideoURL) {
-                      iframe.src = modifiedVideoURL;
-                      iframe.width = '420';
-                      iframe.height = '420';
-                      iframe.frameBorder = '0';
-                      iframe.allow = 'autoplay; encrypted-media';
-                      iframe.allowFullscreen = true;
-              
-                      videoElement.replaceWith(iframe);
-                  }
-                }
-            }
-        }
+    // Define the filters Object & Mappings
+    let filters = {shape: [], lab: [], origin: [], minPrice: '', maxPrice: '', minCarats: '', maxCarats: '', minColor: '', maxColor: '', minClarity: '', maxClarity: '', minCut: '', maxCut: '', minPolish: '', maxPolish: '', minSymmetry: '', maxSymmetry: '', minFluor: '', maxFluor: '', minTable: '', maxTable: '', minDepth: '', maxDepth: '', minRatio: '', maxRatio: ''};
+    const mappings = {
+        cut: ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'],
+        color: ['J', 'I', 'H', 'G', 'F', 'E', 'D'],
+        clarity: ['SI2', 'SI1', 'VS2', 'VS1', 'VVS2', 'VVS1', 'IF', 'FL'],
+        polish: ['GD', 'VG', 'EX'],
+        symmetry: ['GD', 'VG', 'EX'],
+        fluor: ['VST', 'STG', 'MED', 'FNT', 'NON']
+    };
+
+    window.addEventListener('load', async () => {
+        document.querySelectorAll('.filters-object').forEach(container => {
+            container.querySelectorAll('[data-filter]').forEach(element => {
+                element.addEventListener('change', debounce(handleFilterChange, 420));
+            });
+        });
+
+        window.fsAttributes = window.fsAttributes || [];
+        window.fsAttributes.push([
+            "cmsfilter", async (filtersInstances) => {
+                const [filtersInstance] = filtersInstances;
+                listInstance = filtersInstance.listInstance;
+                const [firstItem] = listInstance.items;
+                itemTemplateElement = firstItem.element;
+                
+                await fetchAndInitialize();
+            },
+        ]);
     });
-}
-
-return newItem;
-
-
-  };
-
-
-
-    });  
-  })();
+})(); // End of IIFE
