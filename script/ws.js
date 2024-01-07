@@ -1,73 +1,101 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@587e43740110dec0a5061bb47aaf8d66f394fbca/script/utils.js';
 
 class DiamondCollection {
   constructor() {
+    console.log('DiamondCollection constructor called');
     this.API_ENDPOINT = 'https://api.wsjewelers.com/diamonds';
-    this.collectionList = document.querySelector('.collection-listing');
+    this.listInstance = document.querySelector('.collection-listing');
     this.wrapperElement = document.querySelector('.collection-list-wrapper');
     this.currentPage = 1;
     this.fetching = false;
     this.hasMoreItems = true;
-    this.itemTemplateElement = this.initializeItemTemplate();
-    this.prefetchedItems = [];
+    this.itemTemplateElement = this.listInstance.firstElementChild.cloneNode(true);
+    this.bindTabButtons();
     this.scrollThreshold = 100;
-    this.filters = { shape: [], lab: [], origin: [], minPrice: '', maxPrice: '', minCarats: '', maxCarats: '', minColor: '', maxColor: '', minClarity: '', maxClarity: '', minCut: '', maxCut: '', minPolish: '', maxPolish: '', minSymmetry: '', maxSymmetry: '', minFluor: '', maxFluor: '', minTable: '', maxTable: '', minDepth: '', maxDepth: '', minRatio: '', maxRatio: '' };
-
+    this.filters = {
+      shape: [], lab: [], origin: [], minPrice: '', maxPrice: '',
+      minCarats: '', maxCarats: '', minColor: '', maxColor: '',
+      minClarity: '', maxClarity: '', minCut: '', maxCut: '',
+      minPolish: '', maxPolish: '', minSymmetry: '', maxSymmetry: '',
+      minFluor: '', maxFluor: '', minTable: '', maxTable: '',
+      minDepth: '', maxDepth: '', minRatio: '', maxRatio: ''
+    };
     this.readUrlFiltersAndUpdate();
     if (this.itemTemplateElement) {
       this.bindEvents();
-      this.fetchAndRenderProducts();
-    }
+      this.clearAndFetchFilteredProducts(false); // Prevent URL update on initial load
+    }    
   }
-
-  readUrlFiltersAndUpdate() {
-    const urlParams = new URLSearchParams(window.location.search);
-    Object.keys(this.filters).forEach(filterKey => {
-      if (urlParams.has(filterKey)) {
-        const filterValue = urlParams.get(filterKey);
-        if (filterKey in this.filters && typeof this.filters[filterKey] === 'string') {
-          this.filters[filterKey] = filterValue;
-        } else if (Array.isArray(this.filters[filterKey])) {
-          this.filters[filterKey] = filterValue.split(','); // Assuming multiple values are comma-separated
-        }
-      }
+  bindTabButtons() {
+    document.querySelectorAll('.tab-buttons').forEach(button => {
+        button.addEventListener('click', () => {
+            // Update the template when a tab button is clicked
+            this.itemTemplateElement = this.listInstance.firstElementChild.cloneNode(true);
+        });
     });
-  }
-  
+}
+  readUrlFiltersAndUpdate() {
+    console.log('readUrlFiltersAndUpdate called');
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('URL Parameters:', urlParams.toString()); // Debug log
+
+    if (urlParams.toString() === '') {
+        return; // If no parameters, skip updating filters
+    }
+
+    Object.keys(this.filters).forEach(filterKey => {
+        if (urlParams.has(filterKey)) {
+            const filterValue = urlParams.get(filterKey);
+            if (filterKey in this.filters && typeof this.filters[filterKey] === 'string') {
+                this.filters[filterKey] = filterValue;
+            } else if (Array.isArray(this.filters[filterKey])) {
+                this.filters[filterKey] = filterValue.split(','); // Assuming multiple values are comma-separated
+            }
+
+            // Update UI for checkbox filters
+            if (Array.isArray(this.filters[filterKey])) {
+                this.filters[filterKey].forEach(value => {
+                    const checkboxInput = document.querySelector(`input[filter-data="${filterKey}"][id="${value}"]`);
+                    const visualCheckboxDiv = checkboxInput?.previousElementSibling;
+                    if (checkboxInput && visualCheckboxDiv) {
+                        checkboxInput.checked = true;
+                        visualCheckboxDiv.classList.add('w--redirected-checked');
+                    }
+                });
+            }
+        }
+    });
+}
+
+    
   bindEvents() {
     this.wrapperElement.addEventListener('scroll', () => {
-      if (this.isScrollNearBottom() && !this.fetching && this.hasMoreItems) {
-        this.fetchAndRenderProducts();
-      }
+        if (this.isScrollNearBottom() && !this.fetching && this.hasMoreItems) {
+            this.fetchAndRenderProducts();
+        }
     });
 
-
-
-
-
-
-
-    // Bind checkbox filters
-    const checkboxFilters = document.querySelectorAll('[filter-data]');
-    checkboxFilters.forEach(checkbox => {
-      checkbox.addEventListener('change', this.debounce(this.handleCheckboxFilterChange.bind(this), 500));
+    // Bind both checkbox and range slider filters
+    document.querySelectorAll('[filter-data], input[x-type="range"]').forEach(element => {
+        const isRangeSlider = element.getAttribute('x-type') === 'range';
+        const eventType = isRangeSlider ? 'input' : 'change';
+        const handler = isRangeSlider ? this.handleSliderFilterChange : this.handleCheckboxFilterChange;
+        element.addEventListener(eventType, debounce(handler.bind(this), 500));
     });
+}
 
-    // Bind range slider filters
-    const rangeSliders = document.querySelectorAll('input[x-type="range"]');
-    rangeSliders.forEach(slider => {
-      slider.addEventListener('input', this.debounce(this.handleSliderFilterChange.bind(this), 500));
-    });
-  }
+
   debounce(func, wait) {
     return (...args) => {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => func.apply(this, args), wait);
     };
   } 
+
   initializeItemTemplate() {
-    const { children } = this.collectionList;
+    const { children } = this.listInstance;
     if (children.length === 0) {
       console.error('Unable to find item template.');
       return null;
@@ -78,6 +106,7 @@ class DiamondCollection {
   }
 
   async fetchAndRenderProducts() {
+    console.log('fetchAndRenderProducts called');
     if (this.fetching || !this.hasMoreItems) return;
     this.fetching = true;
     showLoadingAnimation();
@@ -124,133 +153,40 @@ class DiamondCollection {
   }
 
   renderItems(items) {
-    const isGridViewActive = document.querySelector('#grid-view').classList.contains('tab-button-active');
-    // Determine the template to use based on the view
-    const templateElement = isGridViewActive ? this.gridItemTemplateElement : this.itemTemplateElement;
-  
+    // Use the current itemTemplateElement as the template
     items.forEach(item => {
-      const newItemElement = this.createItemElement(item, templateElement);
-      if (newItemElement) {
-        this.collectionList.appendChild(newItemElement);
-      }
+        const newItemElement = this.createItemElement(item, this.itemTemplateElement);
+        if (newItemElement) {
+            this.listInstance.appendChild(newItemElement);
+        }
     });
-  
     formatDiamondIcon(); // Call the function after all items are added
-  }
+}
+
 
   createItemElement(product, templateElement) {
     if (!product || !product.diamond || !product.diamond.certificate) {
-      console.error('Invalid product data:', product);
-      return null;
+        console.error('Invalid product data:', product);
+        return null;
     }
 
     const element = templateElement.cloneNode(true);
-    this.bindProductDataToElement(element, product);
+    bindProductDataToElement(element, product); // Using the imported function
 
-    // Event listener integration
     const openPanel = element.querySelector('.main-panel');
     if (openPanel) {
-        openPanel.addEventListener('click', (event) => this.handlePanelClick(event, element));
+        openPanel.addEventListener('click', (event) => handlePanelClick(event, element, processVideo)); // Using the imported function
     }
 
     return element;
-}
-
-handlePanelClick(event, newItem) {
-    if (!event.target.closest('.td.compare')) {
-        const infoPanel = newItem.querySelector('.info-panel');
-        infoPanel?.classList.toggle('hide');
-
-        if (!infoPanel.classList.contains('hide')) {
-            // Video processing logic
-            const videoElement = newItem.querySelector('.video-iframe');
-            this.processVideo(videoElement);
-        }
-    }
-}
-
-processVideo(videoElement) {
-    if (videoElement && videoElement.textContent) {
-        const iframe = document.createElement('iframe');
-        let videoURL = videoElement.textContent.trim();
-        let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
-
-        if (modifiedVideoURL) {
-            iframe.src = modifiedVideoURL;
-            iframe.width = '420';
-            iframe.height = '420';
-            iframe.frameBorder = '0';
-            iframe.allow = 'autoplay; encrypted-media';
-            iframe.allowFullscreen = true;
-
-            videoElement.replaceWith(iframe);
-        }
-    }
   }
 
-  bindProductDataToElement(element, product) {
-    const {
-      id, diamond: {
-      video,
-      supplier_video_link,
-      certificate: {
-          shape, clarity, certNumber, symmetry,
-          polish, floInt, width, length, depth,
-          depthPercentage, table, girdle, lab,
-          carats, color, cut
-      },
-      availability, mine_of_origin
-      },
-      price
-    } = product;
-    
-    const dataMapping = {
-      "id": id,
-      "video": video,
-      "supplier_video_link": supplier_video_link,
-      "shape": formatShape(shape),
-      "clarity": clarity,
-      "certNumber": certNumber,
-      "symmetry": symmetry,
-      "polish": polish,
-      "floInt": floInt,
-      "width": width,
-      "length": length,
-      "depth": depth,
-      "depthPercentage": depthPercentage,
-      "table": table,
-      "girdle": girdle,
-      "lab": lab,
-      "carats": formatCarats(carats),
-      "color": color,
-      "cut": formatCut(cut),
-      "availability": availability,
-      "mine_of_origin": mine_of_origin,
-      "price": formatPrice(price),
-    };
-
-    Object.keys(dataMapping).forEach(key => {
-      const elements = element.querySelectorAll(`[data-element="${key}"]`);
-      elements.forEach(el => {
-          if (key === 'video' && el.tagName === 'IFRAME' && dataMapping[key]) {
-              const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500/');
-              el.src = modifiedVideoURL;
-          } else if (key === 'video' && el.classList.contains('vid-source') && dataMapping[key]) {
-              el.setAttribute('src', dataMapping[key]);
-          } else {
-              el.textContent = dataMapping[key];
-          }
-      });
-  });
-}
-
-
-  
   isScrollNearBottom() {
     const { scrollTop, clientHeight, scrollHeight } = this.wrapperElement;
     return scrollHeight - (scrollTop + clientHeight) < this.scrollThreshold;
   }
   handleCheckboxFilterChange(event) {
+    console.log('Checkbox filter changed', event.target);
     const filterType = event.target.getAttribute('filter-data');
     const value = event.target;
     this.updateFilters(filterType, value);
@@ -258,6 +194,7 @@ processVideo(videoElement) {
   }
 
   handleSliderFilterChange(event) {
+    console.log('Slider filter changed', event.target);
     const filterType = event.target.id; // 'minPrice', 'maxPrice', 'minColor', 'maxColor', etc.
     const value = event.target.value;
     this.updateFilters(filterType, value);
@@ -318,15 +255,19 @@ processVideo(videoElement) {
   }
   
 
-  clearAndFetchFilteredProducts() {
-    this.updateUrlWithCurrentFilters();
+  clearAndFetchFilteredProducts(updateUrl = true) {
+    if (updateUrl) {
+      this.updateUrlWithCurrentFilters();
+    }
     this.clearList();
     this.currentPage = 1;
     this.prefetchedItems = [];
     this.fetchAndRenderProducts();
   }
+  
 
   updateUrlWithCurrentFilters() {
+    console.log('updateUrlWithCurrentFilters called');
     const queryParams = new URLSearchParams();
     Object.entries(this.filters).forEach(([key, value]) => {
       if (value && value.length > 0) {
@@ -340,10 +281,12 @@ processVideo(videoElement) {
   
 
   clearList() {
-    this.collectionList.innerHTML = '';
+    this.listInstance.innerHTML = '';
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = () => {
+  console.log('Page fully loaded, including all resources');
+  console.log('DOMContentLoaded - creating DiamondCollection instance');
   new DiamondCollection();
-});
+};
