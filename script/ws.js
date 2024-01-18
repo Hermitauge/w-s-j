@@ -289,4 +289,6 @@ window.onload = () => {
   console.log('Page fully loaded, including all resources');
   console.log('DOMContentLoaded - creating DiamondCollection instance');
   new DiamondCollection();
+  // Reinitialize Webflow interactions
+  Webflow.ready();
 };
