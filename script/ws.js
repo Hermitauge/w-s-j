@@ -286,9 +286,18 @@ class DiamondCollection {
 }
 
 window.onload = () => {
+  // Destroy existing Webflow interactions
+  Webflow.destroy();
+
   console.log('Page fully loaded, including all resources');
   console.log('DOMContentLoaded - creating DiamondCollection instance');
+
+  // Initialize your custom class or logic
   new DiamondCollection();
-  // Reinitialize Webflow interactions
+
+  // Reinitialize Webflow core components
   Webflow.ready();
+
+  // Reinitialize Webflow IX2 interactions
+  Webflow.require('ix2').init();
 };
