@@ -18,12 +18,12 @@ export function processVideo(videoElement) {
     if (videoElement && videoElement.textContent) {
         const iframe = document.createElement('iframe');
         let videoURL = videoElement.textContent.trim();
-        let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '320/320/autoplay') : '';
+        let modifiedVideoURL = videoURL ? videoURL.replace('500/500', '420/420/autoplay') : '';
 
         if (modifiedVideoURL) {
             iframe.src = modifiedVideoURL;
-            iframe.width = '320';
-            iframe.height = '320';
+            iframe.width = '420';
+            iframe.height = '420';
             iframe.frameBorder = '0';
             iframe.allow = 'autoplay; encrypted-media';
             iframe.allowFullscreen = true;
