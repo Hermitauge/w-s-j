@@ -33,7 +33,7 @@ export function processVideo(videoElement) {
     }
 }
 
-export function bindProductDataToElement(element, product) {
+export function bindProductDataToElement(element, product, stripeHandler) {
     const {
       id, diamond: {
       video,
@@ -92,4 +92,17 @@ export function bindProductDataToElement(element, product) {
           }
       });
   });
+    // Find the purchase button within the element
+    const purchaseButton = element.querySelector('.purchase-diamond');
+    if (purchaseButton) {
+        // Assuming price, shape, and carats are properties of the product
+        const price = product.price; // Adjust if necessary to match your data structure
+        const shape = product.shape; // Adjust as needed
+        const carats = product.carats; // Adjust as needed
+
+        // Bind the Stripe payment handler to the purchase button
+        purchaseButton.addEventListener('click', () => {
+            stripeHandler.handlePayment(price, shape, carats);
+        });
+    }
 }
