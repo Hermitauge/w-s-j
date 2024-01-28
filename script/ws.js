@@ -27,18 +27,8 @@ class DiamondCollection {
       this.bindEvents();
       this.clearAndFetchFilteredProducts(false); // Prevent URL update on initial load
     }    
-        this.initializeStripe();
+         this.stripeHandler = new StripeHandler('YOUR_STRIPE_PUBLIC_KEY');
     }
-      initializeStripe() {
-        // Initialize StripeHandler with necessary selectors
-        // Replace 'YOUR_STRIPE_PUBLIC_KEY' with your actual Stripe public key
-        this.stripeHandler = new StripeHandler(
-            'YOUR_STRIPE_PUBLIC_KEY',
-            '.purchase-diamond',
-            '[data-element="price"]',
-            '[data-element="shape"]',
-            '[data-element="carats"]'
-        );
         
   bindTabButtons() {
     document.querySelectorAll('.tab-buttons').forEach(button => {
