@@ -7,7 +7,7 @@ export class StripeHandler {
     async handlePayment(price, shape, carats) {
         try {
             // Replace with your API Gateway URL
-            const response = await fetch('https://mwjw6060jh.execute-api.us-west-1.amazonaws.com/live/Stripe', {
+            const response = await fetch('https://mwjw6060jh.execute-api.us-west-1.amazonaws.com/live', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
