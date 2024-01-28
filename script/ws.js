@@ -161,7 +161,16 @@ class DiamondCollection {
         }
     });
     formatDiamondIcon(); // Call the function after all items are added
-}
+
+    // Reinitialize Webflow interactions
+    this.reinitializeWebflowInteractions();
+  }
+
+  reinitializeWebflowInteractions() {
+    Webflow.destroy();
+    Webflow.ready();
+    Webflow.require('ix2').init();
+  }
 
 
   createItemElement(product, templateElement) {
@@ -286,18 +295,9 @@ class DiamondCollection {
 }
 
 window.onload = () => {
-  // Destroy existing Webflow interactions
-  Webflow.destroy();
-
   console.log('Page fully loaded, including all resources');
   console.log('DOMContentLoaded - creating DiamondCollection instance');
 
   // Initialize your custom class or logic
   new DiamondCollection();
-
-  // Reinitialize Webflow core components
-  Webflow.ready();
-
-  // Reinitialize Webflow IX2 interactions
-  Webflow.require('ix2').init();
 };
