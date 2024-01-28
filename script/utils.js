@@ -40,7 +40,7 @@ export function bindProductDataToElement(element, product) {
       supplier_video_link,
       delivery_time,
       certificate: {
-          shape, clarity, certNumber, symmetry,
+          shape, clarity, certNumber, pdfUrl, symmetry,
           polish, floInt, width, length, depth,
           depthPercentage, table, girdle, lab,
           carats, color, cut
@@ -57,6 +57,7 @@ export function bindProductDataToElement(element, product) {
       "shape": formatShape(shape),
       "clarity": clarity,
       "certNumber": certNumber,
+      "pdfUrl": pdfUrl,
       "symmetry": symmetry,
       "polish": polish,
       "floInt": floInt,
@@ -84,6 +85,8 @@ export function bindProductDataToElement(element, product) {
               el.src = modifiedVideoURL;
           } else if (key === 'video' && el.classList.contains('vid-source') && dataMapping[key]) {
               el.setAttribute('src', dataMapping[key]);
+          } else if (key === 'pdfUrl' && dataMapping[key]) {
+              el.href = dataMapping[key]; // Set the href attribute for pdfUrl
           } else {
               el.textContent = dataMapping[key];
           }
