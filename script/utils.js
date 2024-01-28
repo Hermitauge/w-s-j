@@ -34,6 +34,7 @@ export function processVideo(videoElement) {
 }
 
 export function bindProductDataToElement(element, product, stripeHandler) {
+    console.log(stripeHandler);
     const {
       id, diamond: {
       video,
