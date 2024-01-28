@@ -168,9 +168,11 @@ class DiamondCollection {
     // Use the current itemTemplateElement as the template
     items.forEach(item => {
         const newItemElement = this.createItemElement(item, this.itemTemplateElement);
-        if (newItemElement) {
-            this.listInstance.appendChild(newItemElement);
-        }
+          if (newItemElement) {
+              // Pass the stripeHandler instance when binding product data
+              bindProductDataToElement(newItemElement, item, this.stripeHandler);
+              this.listInstance.appendChild(newItemElement);
+          }
     });
     formatDiamondIcon(); // Call the function after all items are added
 
