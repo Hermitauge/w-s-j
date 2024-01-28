@@ -1,32 +1,7 @@
 // stripeHandler.js
 export class StripeHandler {
-    constructor(publicKey, buttonSelector, priceSelector, shapeSelector, caratsSelector) {
+    constructor(publicKey) {
         this.stripe = Stripe(publicKey);  // Initialize Stripe with the public key
-        this.buttonSelector = buttonSelector;
-        this.priceSelector = priceSelector;
-        this.shapeSelector = shapeSelector;
-        this.caratsSelector = caratsSelector;
-        this.initializeButton();  // Set up the event listener on the buy button
-    }
-
-    initializeButton() {
-        const buyButton = document.querySelector(this.buttonSelector);
-        if (!buyButton) {
-            console.error('Buy button not found');
-            return;
-        }
-
-        buyButton.addEventListener('click', async () => {
-            const price = document.querySelector(this.priceSelector)?.textContent;
-            const shape = document.querySelector(this.shapeSelector)?.textContent;
-            const carats = document.querySelector(this.caratsSelector)?.textContent;
-
-            if (price && shape && carats) {
-                this.handlePayment(price, shape, carats);
-            } else {
-                console.error('Missing product details');
-            }
-        });
     }
 
     async handlePayment(price, shape, carats) {
