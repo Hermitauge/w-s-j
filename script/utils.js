@@ -38,6 +38,7 @@ export function bindProductDataToElement(element, product) {
       id, diamond: {
       video,
       supplier_video_link,
+      delivery_time,
       certificate: {
           shape, clarity, certNumber, symmetry,
           polish, floInt, width, length, depth,
@@ -72,6 +73,7 @@ export function bindProductDataToElement(element, product) {
       "availability": availability,
       "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
+      "delivery_time": delivery_time,
     };
 
     Object.keys(dataMapping).forEach(key => {
