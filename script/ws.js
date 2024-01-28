@@ -1,7 +1,7 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
 import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@6d1100acf8f6fbe6ff65ee144de5e56dee5ed3fb/script/utils.js';
-import { StripeHandler } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@0c55376e9ad0c7ecd4aa010f7b2f37601a9fdf9e/script/stripeHandler.js';
+import { StripeHandler } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@752e4e091d944efdecd1bd7bd74b29d6cbd50dd1/script/stripeHandler.js';
 class DiamondCollection {
   constructor() {
     console.log('DiamondCollection constructor called');
