@@ -1,7 +1,7 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@20ae97dea336fba5efe10d728a1ec2cd6b31f57f/script/utils.js';
-import { StripeHandler } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@752e4e091d944efdecd1bd7bd74b29d6cbd50dd1/script/stripeHandler.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@db6814cf7214fe8f8fd2421ba1988da42e7a5dba/script/utils.js';
+import { StripeHandler } from './stripeHandler.js';
 class DiamondCollection {
   constructor() {
     console.log('DiamondCollection constructor called');
@@ -27,9 +27,7 @@ class DiamondCollection {
       this.bindEvents();
       this.clearAndFetchFilteredProducts(false); // Prevent URL update on initial load
     }    
-         this.stripeHandler = new StripeHandler('pk_live_BWTYy9jFuYJT2w2uxmwjCNTs00BNT5lIDz');
-    }
-        
+  }
   bindTabButtons() {
     document.querySelectorAll('.tab-buttons').forEach(button => {
         button.addEventListener('click', () => {
@@ -158,11 +156,9 @@ class DiamondCollection {
     // Use the current itemTemplateElement as the template
     items.forEach(item => {
         const newItemElement = this.createItemElement(item, this.itemTemplateElement);
-          if (newItemElement) {
-              // Pass the stripeHandler instance when binding product data
-              bindProductDataToElement(newItemElement, item, this.stripeHandler);
-              this.listInstance.appendChild(newItemElement);
-          }
+        if (newItemElement) {
+            this.listInstance.appendChild(newItemElement);
+        }
     });
     formatDiamondIcon(); // Call the function after all items are added
 
