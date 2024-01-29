@@ -33,8 +33,7 @@ export function processVideo(videoElement) {
     }
 }
 
-export function bindProductDataToElement(element, product, stripeHandler) {
-    console.log(stripeHandler);
+export function bindProductDataToElement(element, product) {
     const {
       id, diamond: {
       video,
@@ -93,18 +92,4 @@ export function bindProductDataToElement(element, product, stripeHandler) {
           }
       });
   });
-    // Find the purchase button within the element
-// Find the purchase button within the element
-const purchaseButton = element.querySelector('.purchase-diamond');
-if (purchaseButton) {
-    // Adjustments to fetch price, shape, and carats based on provided ids
-    const price = document.getElementById('price').innerText; // Assuming the price is text. Adjust as necessary
-    const shape = document.getElementById('shape').innerText; // Assuming the shape is text. Adjust as needed
-    const carats = document.getElementById('carats').innerText; // Assuming the carats is text. Adjust as needed
-
-    // Bind the Stripe payment handler to the purchase button
-    purchaseButton.addEventListener('click', () => {
-        stripeHandler.handlePayment(price, shape, carats);
-    });
-    } 
 }
