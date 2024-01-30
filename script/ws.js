@@ -189,6 +189,7 @@ class DiamondCollection {
               const purchaseButton = event.target.closest('[data-element="buy"]');
               const orderflowElement = purchaseButton.closest('.orderflow');
               const productName = orderflowElement.querySelector('[data-element="name"]').innerText;
+              const productCertNumber = orderflowElement.querySelector('[data-element="certNumber"]').innerText;
               const productPrice = orderflowElement.querySelector('[data-element="price"]').innerText.replace('$', '').replace(/,/g, '');
   
               fetch('https://mwjw6060jh.execute-api.us-west-1.amazonaws.com/live/Stripe', {
@@ -198,6 +199,7 @@ class DiamondCollection {
                   },
                   body: JSON.stringify({
                       productName: productName,
+                      productCertNumber: productCertNumber,
                       productPrice: productPrice,
                   }),
               })
