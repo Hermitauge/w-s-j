@@ -1,7 +1,7 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@db6814cf7214fe8f8fd2421ba1988da42e7a5dba/script/utils.js';
-import { StripeHandler } from './stripeHandler.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from './utils.js';
+
 class DiamondCollection {
   constructor() {
     console.log('DiamondCollection constructor called');
@@ -26,7 +26,8 @@ class DiamondCollection {
     if (this.itemTemplateElement) {
       this.bindEvents();
       this.clearAndFetchFilteredProducts(false); // Prevent URL update on initial load
-    }    
+    }
+    this.initializeStripePayment();
   }
   bindTabButtons() {
     document.querySelectorAll('.tab-buttons').forEach(button => {
@@ -68,8 +69,6 @@ class DiamondCollection {
         }
     });
 }
-
-    
   bindEvents() {
     this.wrapperElement.addEventListener('scroll', () => {
         if (this.isScrollNearBottom() && !this.fetching && this.hasMoreItems) {
@@ -85,15 +84,12 @@ class DiamondCollection {
         element.addEventListener(eventType, debounce(handler.bind(this), 500));
     });
 }
-
-
   debounce(func, wait) {
     return (...args) => {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => func.apply(this, args), wait);
     };
   } 
-
   initializeItemTemplate() {
     const { children } = this.listInstance;
     if (children.length === 0) {
@@ -104,7 +100,6 @@ class DiamondCollection {
     children[0].remove();
     return template;
   }
-
   async fetchAndRenderProducts() {
     console.log('fetchAndRenderProducts called');
     if (this.fetching || !this.hasMoreItems) return;
@@ -128,7 +123,6 @@ class DiamondCollection {
       hideLoadingAnimation();
     }
   }
-
   async prefetchNextPage() {
     if (!this.hasMoreItems) return;
     try {
@@ -138,9 +132,6 @@ class DiamondCollection {
       this.prefetchedItems = [];
     }
   }
-
-
-  
   async fetchProducts() {
     const queryParams = this.constructQueryParameters();
     const url = `${this.API_ENDPOINT}?page=${this.currentPage}&${queryParams}`;
@@ -151,7 +142,6 @@ class DiamondCollection {
     console.log('Products array from API:', data.items);
     return data.items || [];
   }
-
   renderItems(items) {
     // Use the current itemTemplateElement as the template
     items.forEach(item => {
@@ -160,18 +150,14 @@ class DiamondCollection {
             this.listInstance.appendChild(newItemElement);
         }
     });
-    formatDiamondIcon(); // Call the function after all items are added
-
-    // Reinitialize Webflow interactions
+    formatDiamondIcon();
     this.reinitializeWebflowInteractions();
   }
-
   reinitializeWebflowInteractions() {
     Webflow.destroy();
     Webflow.ready();
     Webflow.require('ix2').init();
   }
-
 
   createItemElement(product, templateElement) {
     if (!product || !product.diamond || !product.diamond.certificate) {
@@ -187,8 +173,43 @@ class DiamondCollection {
         openPanel.addEventListener('click', (event) => handlePanelClick(event, element, processVideo)); // Using the imported function
     }
 
+    // Store the raw price in the purchase button's data attribute
+    const purchaseButton = element.querySelector('[data-element="buy"]');
+    if (purchaseButton) {
+        purchaseButton.setAttribute('data-price', product.price); // Assuming 'product.price' is the raw price
+    }
+
     return element;
+}
+
+    // Initialize Stripe payment handling
+    initializeStripePayment() {
+      document.addEventListener('click', (event) => {
+          if (event.target.matches('[data-element="buy"], [data-element="buy"] *')) {
+              const purchaseButton = event.target.closest('[data-element="buy"]');
+              const orderflowElement = purchaseButton.closest('.orderflow');
+              const productName = orderflowElement.querySelector('[data-element="name"]').innerText;
+              const productPrice = orderflowElement.querySelector('[data-element="price"]').innerText.replace('$', '');
+  
+              fetch('https://mwjw6060jh.execute-api.us-west-1.amazonaws.com/live/Stripe', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      productName: productName,
+                      productPrice: productPrice,
+                  }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                  window.location.href = data.url; // Redirect to Stripe Checkout
+              })
+              .catch(error => console.error('Error:', error));
+          }
+      });
   }
+  
 
   isScrollNearBottom() {
     const { scrollTop, clientHeight, scrollHeight } = this.wrapperElement;
@@ -201,7 +222,6 @@ class DiamondCollection {
     this.updateFilters(filterType, value);
     this.clearAndFetchFilteredProducts();
   }
-
   handleSliderFilterChange(event) {
     console.log('Slider filter changed', event.target);
     const filterType = event.target.id; // 'minPrice', 'maxPrice', 'minColor', 'maxColor', etc.
@@ -209,7 +229,6 @@ class DiamondCollection {
     this.updateFilters(filterType, value);
     this.clearAndFetchFilteredProducts();
   }
-
   updateFilters(filterType, value) {
     if (['shape', 'lab', 'origin'].includes(filterType)) {
       // Checkbox filters
@@ -225,8 +244,6 @@ class DiamondCollection {
       this.filters[filterType] = value;
     }
   }
-  
-
   constructQueryParameters() {
     const mappings = {
       cut: ['F', 'GD', 'VG', 'EX', 'ID', 'EIGHTX'],
@@ -262,8 +279,6 @@ class DiamondCollection {
   
     return queryString;
   }
-  
-
   clearAndFetchFilteredProducts(updateUrl = true) {
     if (updateUrl) {
       this.updateUrlWithCurrentFilters();
@@ -273,8 +288,6 @@ class DiamondCollection {
     this.prefetchedItems = [];
     this.fetchAndRenderProducts();
   }
-  
-
   updateUrlWithCurrentFilters() {
     console.log('updateUrlWithCurrentFilters called');
     const queryParams = new URLSearchParams();
@@ -287,17 +300,12 @@ class DiamondCollection {
     const newUrl = `${window.location.origin}${window.location.pathname}?${queryParams.toString()}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
   }
-  
-
   clearList() {
     this.listInstance.innerHTML = '';
   }
 }
-
 window.onload = () => {
   console.log('Page fully loaded, including all resources');
   console.log('DOMContentLoaded - creating DiamondCollection instance');
-
-  // Initialize your custom class or logic
   new DiamondCollection();
 };
