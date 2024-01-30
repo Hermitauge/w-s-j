@@ -189,7 +189,7 @@ class DiamondCollection {
               const purchaseButton = event.target.closest('[data-element="buy"]');
               const orderflowElement = purchaseButton.closest('.orderflow');
               const productName = orderflowElement.querySelector('[data-element="name"]').innerText;
-              const productPrice = orderflowElement.querySelector('[data-element="price"]').innerText.replace('$', '');
+              const productPrice = orderflowElement.querySelector('[data-element="price"]').innerText.replace('$', '').replace(/,/g, '');
   
               fetch('https://mwjw6060jh.execute-api.us-west-1.amazonaws.com/live/Stripe', {
                   method: 'POST',
