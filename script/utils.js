@@ -90,7 +90,7 @@ export function bindProductDataToElement(element, product) {
           } else if (key === 'supplier_video_link' && el.tagName === 'IFRAME' && dataMapping[key]) {
             const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500');
             el.src = modifiedVideoURL;
-          } else if (key === 'supplier_video_link' && el.classList.contains('vid-source') && dataMapping[key]) {
+          } else if (key === 'supplier_video_link' && el.classList.contains('iframe') && dataMapping[key]) {
             el.setAttribute('src', dataMapping[key]);
           } else if (key === 'pdfUrl' && dataMapping[key]) {
             el.href = dataMapping[key];
