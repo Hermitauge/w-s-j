@@ -35,19 +35,21 @@ export function processVideo(videoElement) {
 
 export function bindProductDataToElement(element, product) {
     const {
-      id, diamond: {
+      id,
       video,
       supplier_video_link,
-      delivery_time,
+      delivery_time: {express_timeline_applicable, min_business_days, max_business_days},
+      mine_of_origin,
       certificate: {
           shape, clarity, certNumber, pdfUrl, symmetry,
           polish, floInt, width, length, depth,
           depthPercentage, table, girdle, lab,
           carats, color, cut
       },
-      availability, mine_of_origin
-      },
-      price
+      v360: {
+        url
+       },
+    price
     } = product;
     
     const dataMapping = {
@@ -75,6 +77,7 @@ export function bindProductDataToElement(element, product) {
       "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
       "delivery_time": delivery_time,
+      "url": url,
     };
 
     Object.keys(dataMapping).forEach(key => {
