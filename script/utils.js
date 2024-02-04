@@ -37,6 +37,7 @@ export function bindProductDataToElement(element, product) {
     const {
       id,
       video,
+      image,
       supplier_video_link,
       delivery_time: {express_timeline_applicable, min_business_days, max_business_days},
       mine_of_origin,
@@ -55,6 +56,7 @@ export function bindProductDataToElement(element, product) {
     const dataMapping = {
       "id": id,
       "video": video,
+      "image": image,
       "supplier_video_link": supplier_video_link,
       "shape": formatShape(shape),
       "clarity": clarity,
@@ -81,18 +83,20 @@ export function bindProductDataToElement(element, product) {
     };
 
     Object.keys(dataMapping).forEach(key => {
-      const elements = element.querySelectorAll(`[data-element="${key}"]`);
-      elements.forEach(el => {
-          if (key === 'supplier_video_link' && el.tagName === 'IFRAME' && dataMapping[key]) {
-              const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500');
-              el.src = modifiedVideoURL;
+        const elements = element.querySelectorAll(`[data-element="${key}"]`);
+        elements.forEach(el => {
+          if (key === 'image' && dataMapping[key]) {
+            el.style.backgroundImage = `url('${dataMapping[key]}')`;
+          } else if (key === 'supplier_video_link' && el.tagName === 'IFRAME' && dataMapping[key]) {
+            const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500');
+            el.src = modifiedVideoURL;
           } else if (key === 'supplier_video_link' && el.classList.contains('vid-source') && dataMapping[key]) {
-              el.setAttribute('src', dataMapping[key]);
+            el.setAttribute('src', dataMapping[key]);
           } else if (key === 'pdfUrl' && dataMapping[key]) {
-              el.href = dataMapping[key]; // Set the href attribute for pdfUrl
+            el.href = dataMapping[key];
           } else {
-              el.textContent = dataMapping[key];
+            el.textContent = dataMapping[key];
           }
+        });
       });
-  });
-}
+  }
