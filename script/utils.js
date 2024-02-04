@@ -73,10 +73,8 @@ export function bindProductDataToElement(element, product) {
       "carats": formatCarats(carats),
       "color": color,
       "cut": formatCut(cut),
-      "availability": availability,
       "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
-      "delivery_time": delivery_time,
       "url": url,
     };
 
