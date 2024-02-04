@@ -89,7 +89,7 @@ export function bindProductDataToElement(element, product) {
             el.style.backgroundImage = `url('${dataMapping[key]}')`;
             el.addEventListener('click', function() {
               this.style.display = 'none'; // Hides the image element
-              const iframeElement = element.querySelector('.iframe"]');
+              const iframeElement = element.querySelector('.iframe');
               if (iframeElement && dataMapping['supplier_video_link']) {
                 iframeElement.src = dataMapping['supplier_video_link']; // Load the media in the iframe
               }
