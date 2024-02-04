@@ -76,6 +76,8 @@ export function bindProductDataToElement(element, product) {
       "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
       "url": url,
+      "min_business_days": min_business_days,
+      "max_business_days": max_business_days,
     };
 
     Object.keys(dataMapping).forEach(key => {
