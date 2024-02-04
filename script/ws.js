@@ -1,6 +1,6 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@5134968fddddb26678effbababe8b168b05afd22/script/utils.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@6a9adea4f496c723cb584eceb0cec5b8c02ece30/script/utils.js';
 
 
 class DiamondCollection {
@@ -28,6 +28,7 @@ class DiamondCollection {
       this.bindEvents();
       this.clearAndFetchFilteredProducts(false); // Prevent URL update on initial load
     }
+    this.reinitializeWebflowInteractions();
     this.initializeStripePayment();
   }
   bindTabButtons() {
@@ -155,7 +156,7 @@ class DiamondCollection {
     this.reinitializeWebflowInteractions();
   }
   reinitializeWebflowInteractions() {
-    
+    Webflow.destroy();
     Webflow.ready();
     Webflow.require('ix2').init();
   }
