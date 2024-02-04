@@ -83,7 +83,7 @@ export function bindProductDataToElement(element, product) {
     Object.keys(dataMapping).forEach(key => {
       const elements = element.querySelectorAll(`[data-element="${key}"]`);
       elements.forEach(el => {
-          if (key === 'video' && el.tagName === 'IFRAME' && dataMapping[key]) {
+          if (key === 'supplier_video_link' && el.tagName === 'IFRAME' && dataMapping[key]) {
               const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500');
               el.src = modifiedVideoURL;
           } else if (key === 'supplier_video_link' && el.classList.contains('vid-source') && dataMapping[key]) {
