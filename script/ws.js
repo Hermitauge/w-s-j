@@ -160,7 +160,7 @@ class DiamondCollection {
   }
 
   createItemElement(product, templateElement) {
-    if (!product || !product || !product.certificate) {
+    if (!product || !product || !product.certificate || !product.v360) {
         console.error('Invalid product data:', product);
         return null;
     }
