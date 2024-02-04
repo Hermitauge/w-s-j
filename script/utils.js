@@ -87,11 +87,15 @@ export function bindProductDataToElement(element, product) {
         elements.forEach(el => {
           if (key === 'image' && dataMapping[key]) {
             el.style.backgroundImage = `url('${dataMapping[key]}')`;
-          } else if (key === 'supplier_video_link' && el.tagName === 'IFRAME' && dataMapping[key]) {
-            const modifiedVideoURL = dataMapping[key].replace('500/500', '500/500');
-            el.src = modifiedVideoURL;
-          } else if (key === 'supplier_video_link' && el.classList.contains('iframe') && dataMapping[key]) {
-            el.setAttribute('src', dataMapping[key]);
+            el.addEventListener('click', function() {
+              this.style.display = 'none'; // Hides the image element
+              const iframeElement = element.querySelector('[data-element="supplier_video_link"]');
+              if (iframeElement && dataMapping['supplier_video_link']) {
+                iframeElement.src = dataMapping['supplier_video_link']; // Load the media in the iframe
+              }
+            });
+          } else if (key === 'supplier_video_link') {
+            // Don't set the src for iframes initially
           } else if (key === 'pdfUrl' && dataMapping[key]) {
             el.href = dataMapping[key];
           } else {
