@@ -95,7 +95,7 @@ export function bindProductDataToElement(element, product) {
               }
             });
           } else if (key === 'supplier_video_link') {
-            // Don't set the src for iframes initially
+            // Skip setting src for iframe here
           } else if (key === 'pdfUrl' && dataMapping[key]) {
             el.href = dataMapping[key];
           } else {
