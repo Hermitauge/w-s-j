@@ -90,14 +90,14 @@ export function bindProductDataToElement(element, product) {
    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
    imageElement.addEventListener('click', function() {
      this.style.display = 'none'; // Hides the image element
-     if (iframeElement && dataMapping['supplier_video_link']) {
-       iframeElement.src = dataMapping['supplier_video_link'];
+     if (iframeElement && dataMapping['video']) {
+       iframeElement.src = dataMapping['video'];
      }
    });
  }
 
  Object.keys(dataMapping).forEach(key => {
-   if (key !== 'image' && key !== 'id') {
+   if (key !== 'image' && key !== 'video') {
      const elements = element.querySelectorAll(`[data-element="${key}"]`);
      elements.forEach(el => {
        if (key === 'pdfUrl' && dataMapping[key]) {

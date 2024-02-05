@@ -1,6 +1,6 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@3688f75f3fa23f3cce0f6b99366b650282c03faa/script/utils.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@d525206c0ab1acab263bfecea2d3d83ddfc6c2eb/script/utils.js';
 
 
 class DiamondCollection {
