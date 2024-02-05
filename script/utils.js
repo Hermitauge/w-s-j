@@ -37,19 +37,13 @@ export function bindProductDataToElement(element, product) {
     const {
       id,
       video,
-      image,
-      supplier_video_link,
-      delivery_time: {express_timeline_applicable, min_business_days, max_business_days},
-      mine_of_origin,
+      delivery_time: {min_business_days, max_business_days},
       certificate: {
           shape, clarity, certNumber, pdfUrl, symmetry,
           polish, floInt, width, length, depth,
           depthPercentage, table, girdle, lab,
           carats, color, cut
       },
-      v360: {
-        url
-       },
     price
     } = product;
     
@@ -73,7 +67,6 @@ export function bindProductDataToElement(element, product) {
       "carats": formatCarats(carats),
       "color": color,
       "cut": formatCut(cut),
-      "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
       "min_business_days": min_business_days,
       "max_business_days": max_business_days,
