@@ -89,13 +89,12 @@ export function bindProductDataToElement(element, product) {
             el.style.backgroundImage = `url('${dataMapping[key]}')`;
             el.addEventListener('click', function() {
               this.style.display = 'none'; // Hides the image element
-              const iframeElement = element.querySelector('.iframe');
-              if (iframeElement && dataMapping['supplier_video_link']) {
-                iframeElement.src = dataMapping['supplier_video_link']; // Load the media in the iframe
-              }
             });
-          } else if (key === 'supplier_video_link') {
-            // Skip setting src for iframe here
+          } else if (key === 'supplier_video_link' && dataMapping[key]) {
+            const iframeElement = element.querySelector('.iframe');
+            if (iframeElement) {
+              iframeElement.src = dataMapping['supplier_video_link']; // Set the media in the iframe
+            }
           } else if (key === 'pdfUrl' && dataMapping[key]) {
             el.href = dataMapping[key];
           } else {
@@ -103,4 +102,4 @@ export function bindProductDataToElement(element, product) {
           }
         });
       });
-  }
+      
