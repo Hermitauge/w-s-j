@@ -73,17 +73,6 @@ export function bindProductDataToElement(element, product) {
     };
     
 // Selecting the .diamond-image element
-const VideoIframe = ({ src }) => {
-    return React.createElement('iframe', {
-      src: src,
-      width: '500',
-      height: '500',
-      frameBorder: '0',
-      allow: 'encrypted-media',
-      allowFullScreen: true,
-    });
-  };
-  
 const imageElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
 const initiateMedia = element.querySelector('.td');
@@ -96,21 +85,12 @@ if (imageElement && dataMapping['']) {
   // Action 2: Add click event listener to imageElement
   if (imageElement) {
     imageElement.addEventListener('click', function() {
-      if (dataMapping['video']) {
-        const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-  
-        // Assuming that .inner-vid is the container where the React component should be rendered
-        const innerVidElement = element.querySelector('.inner-vid');
-        if (innerVidElement) {
-          ReactDOM.render(
-            React.createElement(VideoIframe, { src: videoUrl }),
-            innerVidElement
-          );
-        }
+      if (iframeElement && dataMapping['video']) {
+        const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        iframeElement.src = VideoUrl;
       }
     });
   }
-  
   
 
 
