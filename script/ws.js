@@ -156,9 +156,10 @@ class DiamondCollection {
     this.reinitializeWebflowInteractions();
   }
   reinitializeWebflowInteractions() {
-    Webflow.destroy();
-    Webflow.ready();
-    Webflow.require('ix2').init();
+    window.Webflow && window.Webflow.destroy();
+    window.Webflow && window.Webflow.ready();
+ window.Webflow && window.Webflow.require( 'ix2' ).init();
+ document.dispatchEvent( new Event( 'readystatechange' ) );
   }
 
   createItemElement(product, templateElement) {
@@ -170,7 +171,10 @@ class DiamondCollection {
     const element = templateElement.cloneNode(true);
     bindProductDataToElement(element, product); // Using the imported function
 
-
+    const openPanel = element.querySelector('.main-panel');
+    if (openPanel) {
+        openPanel.addEventListener('click', (event) => handlePanelClick(event, element, processVideo)); // Using the imported function
+    }
 
     // Store the raw price in the purchase button's data attribute
     const purchaseButton = element.querySelector('[data-element="buy"]');

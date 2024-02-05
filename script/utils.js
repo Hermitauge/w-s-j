@@ -3,16 +3,37 @@ import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, form
 //  utils.js
 
 export function handlePanelClick(event, newItem, processVideo) {
-    if (!event.target.closest('.td.compare')) {
-        const infoPanel = newItem.querySelector('.info-panel');
-        infoPanel?.classList.toggle('hide');
+    const allInfoPanels = document.querySelectorAll('.information-panel');
+    const allOpenPanels = document.querySelectorAll('.open-panel');
+    const currentInfoPanel = newItem.querySelector('.information-panel');
+    const currentOpenPanel = newItem.querySelector('.open-panel');
 
-        if (!infoPanel.classList.contains('hide')) {
-            const videoElement = newItem.querySelector('.video-iframe');
-            processVideo(videoElement);
+    if (!event.target.closest('.td.compare')) {
+        allInfoPanels.forEach(panel => {
+            if (panel !== currentInfoPanel) {
+                panel.style.height = '0';
+                panel.classList.remove('active');
+            }
+        });
+
+        allOpenPanels.forEach(openPanel => {
+            if (openPanel !== currentOpenPanel) {
+                openPanel.style.transform = 'rotateZ(0deg)';
+            }
+        });
+
+        if (currentInfoPanel.classList.contains('active')) {
+            currentInfoPanel.style.height = '0';
+            currentInfoPanel.classList.remove('active');
+            currentOpenPanel.style.transform = 'rotateZ(0deg)';
+        } else {
+            currentInfoPanel.style.height = 'auto';
+            currentInfoPanel.classList.add('active');
+            currentOpenPanel.style.transform = 'rotateZ(90deg)';
         }
     }
 }
+
 
 export function processVideo(videoElement) {
     if (videoElement && videoElement.textContent) {
