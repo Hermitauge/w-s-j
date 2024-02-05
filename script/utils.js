@@ -11,28 +11,36 @@ export function handlePanelClick(event, newItem, processVideo) {
     if (!event.target.closest('.td.compare')) {
         allInfoPanels.forEach(panel => {
             if (panel !== currentInfoPanel) {
+                panel.style.transition = 'height 0.4s ease';
                 panel.style.height = '0';
-                panel.classList.remove('active');
             }
         });
 
         allOpenPanels.forEach(openPanel => {
             if (openPanel !== currentOpenPanel) {
+                openPanel.style.transition = 'transform 0.4s ease';
                 openPanel.style.transform = 'rotateZ(0deg)';
             }
         });
 
         if (currentInfoPanel.classList.contains('active')) {
+            currentInfoPanel.style.transition = 'height 0.4s ease';
             currentInfoPanel.style.height = '0';
             currentInfoPanel.classList.remove('active');
+
+            currentOpenPanel.style.transition = 'transform 0.4s ease';
             currentOpenPanel.style.transform = 'rotateZ(0deg)';
         } else {
-            currentInfoPanel.style.height = 'auto';
+            currentInfoPanel.style.height = `${currentInfoPanel.scrollHeight}px`; // Set to scrollHeight for dynamic height
+            currentInfoPanel.style.transition = 'height 0.4s ease';
             currentInfoPanel.classList.add('active');
+
+            currentOpenPanel.style.transition = 'transform 0.4s ease';
             currentOpenPanel.style.transform = 'rotateZ(90deg)';
         }
     }
 }
+
 
 
 export function processVideo(videoElement) {
