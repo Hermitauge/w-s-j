@@ -56,8 +56,6 @@ export function bindProductDataToElement(element, product) {
     const dataMapping = {
       "id": id,
       "video": video,
-      "image": image,
-      "supplier_video_link": supplier_video_link,
       "shape": formatShape(shape),
       "clarity": clarity,
       "certNumber": certNumber,
@@ -77,7 +75,6 @@ export function bindProductDataToElement(element, product) {
       "cut": formatCut(cut),
       "mine_of_origin": mine_of_origin,
       "price": formatPrice(price),
-      "url": url,
       "min_business_days": min_business_days,
       "max_business_days": max_business_days,
     };
