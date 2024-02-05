@@ -88,7 +88,7 @@ const iframeElement = element.querySelector('.iframe');
 
 // Action 1: Set background image of imageElement
 if (imageElement && dataMapping['image']) {
-    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+    imageElement.style.backgroundImage = `url('${dataMapping['supplier_video_link']}')`;
   }
   
   // Action 2: Add click event listener to imageElement
