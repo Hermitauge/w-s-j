@@ -83,8 +83,6 @@ export function bindProductDataToElement(element, product) {
     
 // Selecting the .diamond-image element
 const imageElement = element.querySelector('[data-element=""]');
-const iframeElement = element.querySelector('.iframe');
-const initiateMedia = element.querySelector('.td');
 
 // Action 1: Set background image of imageElement
 if (imageElement && dataMapping['']) {
@@ -92,15 +90,22 @@ if (imageElement && dataMapping['']) {
   }
   
   // Action 2: Add click event listener to imageElement
-  if (initiateMedia) {
+const collectionItems = element.querySelectorAll('.collection-item');
+collectionItems.forEach(collectionItem => {
+  const iframeElement = collectionItem.querySelector('.iframe');
+  const initiateMedia = collectionItem.querySelectorAll('.td');
+
+  // Add click event listener to each .td element in this .collection-item
+  initiateMedia.forEach(initiateMedia => {
     initiateMedia.addEventListener('click', function() {
-      imageElement.style.display = 'none'; // Hides the image element
       if (iframeElement && dataMapping['video']) {
-        const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-        iframeElement.src = VideoUrl;
+        const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        iframeElement.src = videoUrl;
       }
     });
-  }
+  });
+});
+
   
 
 
