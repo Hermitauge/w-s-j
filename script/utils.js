@@ -83,24 +83,25 @@ export function bindProductDataToElement(element, product) {
     };
     
 // Selecting the .diamond-image element
-const diamondImageElement = element.querySelector('.diamond-image');
+const imageElement = element.querySelector('[data-element="image"]');
+const iframeElement = element.querySelector('.iframe');
 
-// Action 1: Set background image of diamondImageElement
-if (diamondImageElement && dataMapping['image']) {
-  diamondImageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
-}
-
-// Action 2: Add click event listener to diamondImageElement
-if (diamondImageElement) {
-  diamondImageElement.addEventListener('click', function() {
-    this.style.display = 'none'; // Hides the .diamond-image element
-    if (iframeElement && dataMapping['video']) {
-      // Modifying the video URL
-      const modifiedVideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-      iframeElement.src = modifiedVideoUrl;
-    }
-  });
-}
+// Action 1: Set background image of imageElement
+if (imageElement && dataMapping['image']) {
+    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+  }
+  
+  // Action 2: Add click event listener to imageElement
+  if (imageElement) {
+    imageElement.addEventListener('click', function() {
+      this.style.display = 'none'; // Hides the image element
+      if (iframeElement && dataMapping['video']) {
+        const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        iframeElement.src = VideoUrl;
+      }
+    });
+  }
+  
 
 
  Object.keys(dataMapping).forEach(key => {
