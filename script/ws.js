@@ -1,6 +1,6 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@80dc37bcea2b32e558794e307684a4c665eb0edb/script/utils.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@d2511a0736f0fbd0454a5c0714ca2ec7a9ad8f41/script/utils.js';
 
 
 class DiamondCollection {
@@ -162,7 +162,7 @@ class DiamondCollection {
   }
 
   createItemElement(product, templateElement) {
-    if (!product || !product || !product.v360 || !product.certificate) {
+    if (!product || !product || !product.certificate) {
         console.error('Invalid product data:', product);
         return null;
     }
