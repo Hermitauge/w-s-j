@@ -66,6 +66,7 @@ export function bindProductDataToElement(element, product) {
     const {
       id,
       video,
+      image,
       delivery_time: {min_business_days, max_business_days},
       certificate: {
           shape, clarity, certNumber, pdfUrl, symmetry,
@@ -79,6 +80,7 @@ export function bindProductDataToElement(element, product) {
     const dataMapping = {
       "id": id,
       "video": video,
+      "image": image,
       "shape": formatShape(shape),
       "clarity": clarity,
       "certNumber": certNumber,
@@ -102,18 +104,19 @@ export function bindProductDataToElement(element, product) {
     };
     
 // Selecting the .diamond-image element
+const mediaElement = element.querySelector('.main-panel');
 const imageElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
 const initiateMedia = element.querySelector('.td');
 
 // Action 1: Set background image of imageElement
-if (imageElement && dataMapping['']) {
-    imageElement.style.backgroundImage = `url('${dataMapping['']}')`;
+if (imageElement && dataMapping['image']) {
+    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
   }
   
   // Action 2: Add click event listener to imageElement
-  if (imageElement) {
-    imageElement.addEventListener('click', function() {
+  if (mediaElement) {
+    mediaElement.addEventListener('click', function() {
       if (iframeElement && dataMapping['video']) {
         const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
         iframeElement.src = VideoUrl;
