@@ -97,7 +97,7 @@ export function bindProductDataToElement(element, product) {
  }
 
  Object.keys(dataMapping).forEach(key => {
-   if (key !== 'image' && key !== 'supplier_video_link') {
+   if (key !== 'image' && key !== 'id') {
      const elements = element.querySelectorAll(`[data-element="${key}"]`);
      elements.forEach(el => {
        if (key === 'pdfUrl' && dataMapping[key]) {
