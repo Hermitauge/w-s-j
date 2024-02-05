@@ -81,26 +81,31 @@ export function bindProductDataToElement(element, product) {
       "min_business_days": min_business_days,
       "max_business_days": max_business_days,
     };
+    
+ // Set image click listener and iframe src
+ const imageElement = element.querySelector('[data-element="image"]');
+ const iframeElement = element.querySelector('.iframe');
 
-    Object.keys(dataMapping).forEach(key => {
-        const elements = element.querySelectorAll(`[data-element="${key}"]`);
-        elements.forEach(el => {
-          if (key === 'image' && dataMapping[key]) {
-            el.style.backgroundImage = `url('${dataMapping[key]}')`;
-            el.addEventListener('click', function() {
-              this.style.display = 'none'; // Hides the image element
-            });
-          } else if (key === 'supplier_video_link' && dataMapping[key]) {
-            const iframeElement = element.querySelector('.iframe');
-            if (iframeElement) {
-              iframeElement.src = dataMapping['supplier_video_link']; // Set the media in the iframe
-            }
-          } else if (key === 'pdfUrl' && dataMapping[key]) {
-            el.href = dataMapping[key];
-          } else {
-            el.textContent = dataMapping[key];
-          }
-        });
-      });
-      
-  }
+ if (imageElement && dataMapping['image']) {
+   imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+   imageElement.addEventListener('click', function() {
+     this.style.display = 'none'; // Hides the image element
+     if (iframeElement && dataMapping['supplier_video_link']) {
+       iframeElement.src = dataMapping['supplier_video_link'];
+     }
+   });
+ }
+
+ Object.keys(dataMapping).forEach(key => {
+   if (key !== 'image' && key !== 'supplier_video_link') {
+     const elements = element.querySelectorAll(`[data-element="${key}"]`);
+     elements.forEach(el => {
+       if (key === 'pdfUrl' && dataMapping[key]) {
+         el.href = dataMapping[key];
+       } else {
+         el.textContent = dataMapping[key];
+       }
+     });
+   }
+ });
+}
