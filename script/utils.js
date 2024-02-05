@@ -105,7 +105,7 @@ export function bindProductDataToElement(element, product) {
     
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
-const imageElement = element.querySelector('.main-panel');
+const imageElement = element.querySelector('.diamond-image');
 const iframeElement = element.querySelector('.iframe');
 const initiateMedia = element.querySelector('.td');
 
