@@ -156,25 +156,31 @@ const initiateMedia = element.querySelector('.td');
       });
   });
 
-  // Click event for each .diamond-modal
-  element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
-      diamondModal.addEventListener('click', function() {
-          const dModalWrapper = this.nextElementSibling;
-          if (dModalWrapper) {
-              dModalWrapper.classList.remove('hide');
-              setTimeout(() => {
-                  dModalWrapper.style.opacity = '1';
-              }, 240);
+// Click event for each .diamond-modal
+element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
+  diamondModal.addEventListener('click', function() {
+      const dModalWrapper = this.nextElementSibling;
+      const iframeModal = dModalWrapper.querySelector('.iframe-modal');
+      if (iframeModal && dataMapping['video']) {
+          iframeModal.src = dataMapping['video'];
+      }
 
-              const viewDContainer = dModalWrapper.querySelector('.view-d_container');
-              if (viewDContainer) {
-                  viewDContainer.style.opacity = '1';
-                  viewDContainer.style.transform = 'translateY(0px)';
-                  viewDContainer.style.transition = 'opacity 0.32s ease, transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-              }
+      if (dModalWrapper) {
+          dModalWrapper.classList.remove('hide');
+          setTimeout(() => {
+              dModalWrapper.style.opacity = '1';
+          }, 240);
+
+          const viewDContainer = dModalWrapper.querySelector('.view-d_container');
+          if (viewDContainer) {
+              viewDContainer.style.opacity = '1';
+              viewDContainer.style.transform = 'translateY(0px)';
+              viewDContainer.style.transition = 'opacity 0.32s ease, transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
           }
-      });
+      }
   });
+});
+
 
   // Close behavior for .modal-close_area and .modal-close_btn
   element.querySelectorAll('.modal-close_area, .modal-close_btn').forEach(closeElement => {
