@@ -106,6 +106,7 @@ export function bindProductDataToElement(element, product) {
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
+const iframeGrid = element.querySelector('.iframe-grid');
 const initiateMedia = element.querySelector('.td');
 
 
@@ -128,10 +129,10 @@ if (imageElement && dataMapping['image']) {
 // Action 2: Add mouseenter event listener to imageElement (only once)
 if (imageElement) {
   imageElement.addEventListener('mouseenter', function() {
-    if (iframeElement && dataMapping['video'] && !iframeElement.dataset.videoSet) {
+    if (iframeGrid && dataMapping['video'] && !iframeElement.dataset.videoSet) {
       const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-      iframeElement.src = videoUrl;
-      iframeElement.dataset.videoSet = 'true';
+      iframeGrid.src = videoUrl;
+      iframeGrid.dataset.videoSet = 'true';
     }
   }, { once: true });
 }
