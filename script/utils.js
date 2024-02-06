@@ -126,7 +126,7 @@ const initiateMedia = element.querySelector('.td');
     imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
   
     // Action 2: Add mouseenter event listener to imageElement
-    imageElement.addEventListener('mouseenter', function() {
+    imageElement.addEventListener('click', function() {
       // Hide the image element
       imageElement.style.display = 'none';
       const iframeGrid = element.querySelector('.iframe-grid');
