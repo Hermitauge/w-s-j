@@ -144,6 +144,7 @@ const initiateMedia = element.querySelector('.td');
   element.querySelectorAll('.view-d_container').forEach(container => {
       container.style.opacity = '0';
       container.style.transform = 'translateY(20px)';
+      container.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
   });
 
 // Mouse enter and leave events for each .grid-panel
@@ -183,7 +184,7 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
 
           const viewDContainer = dModalWrapper.querySelector('.view-d_container');
           if (viewDContainer) {
-            viewDContainer.style.transform = 'translateY(20px)';
+            viewDContainer.style.transform = 'translateY(0px)';
             viewDContainer.style.opacity = '1';
             viewDContainer.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
           }
