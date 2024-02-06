@@ -161,10 +161,13 @@ document.querySelector('.diamond-modal').addEventListener('click', function() {
   }
 
   const dModalWrapper = document.querySelector('.d-modal-wrapper');
-  dModalWrapper.style.display = 'block';
-  setTimeout(() => {
-    dModalWrapper.style.opacity = '1';
-  }, 240);
+  if (dModalWrapper) {
+    dModalWrapper.classList.remove('hide');
+    setTimeout(() => {
+      dModalWrapper.style.opacity = '1';
+    }, 240);
+  }
+  
 
   document.querySelectorAll('.view-d_container').forEach(container => {
     container.style.opacity = '1';
