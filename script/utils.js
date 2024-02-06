@@ -140,7 +140,7 @@ const initiateMedia = element.querySelector('.td');
   // }
 // Vanilla JS equivalent for modal behavior
 // Modal behavior with vanilla JS
-document.addEventListener('DOMContentLoaded', function() {
+
 
   // Set initial styles
   const dModalWrapper = document.querySelector('.d-modal-wrapper');
@@ -211,6 +211,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // Existing JavaScript code for data mapping
+
+
 
 // When .diamond-modal is clicked
 //document.querySelector('.diamond-modal').addEventListener('click', function() {
