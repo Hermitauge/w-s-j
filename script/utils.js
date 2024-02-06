@@ -137,22 +137,15 @@ const initiateMedia = element.querySelector('.td');
      // }
     // }, { once: true });
   // }
-  
-  const iframeGridElements = document.querySelectorAll('.iframe-grid[data-element="video"]');
-
-  iframeGridElements.forEach(iframeGridElement => {
-    if (dataMapping['video']) {
-      iframeGridElement.src = dataMapping['video'];
-    }
-  });
-  
 
 
  Object.keys(dataMapping).forEach(key => {
-   if (key !== 'image' && key !== 'video') {
+   if (key !== 'image') {
      const elements = element.querySelectorAll(`[data-element="${key}"]`);
      elements.forEach(el => {
-       if (key === 'pdfUrl' && dataMapping[key]) {
+    if (key === 'video' && el.classList.contains('iframe-grid') && dataMapping[key]) {
+            el.src = dataMapping[key];
+        } else if (key === 'pdfUrl' && dataMapping[key]) {
          el.href = dataMapping[key];
        } else {
          el.textContent = dataMapping[key];
