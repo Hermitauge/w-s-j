@@ -113,11 +113,12 @@ const initiateMedia = element.querySelector('.td');
   // Action 2: Add click event listener to imageElement
   if (mediaElement) {
     mediaElement.addEventListener('click', function() {
-      if (iframeElement && dataMapping['video']) {
-        const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-        iframeElement.src = VideoUrl;
+      if (iframeElement && dataMapping['video'] && !iframeElement.dataset.videoSet) {
+        const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        iframeElement.src = videoUrl;
+        iframeElement.dataset.videoSet = 'true';
       }
-    });
+    }, { once: true });
   }
 
 //  const imageElement = element.querySelector('.diamond-image');
