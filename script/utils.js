@@ -106,7 +106,6 @@ export function bindProductDataToElement(element, product) {
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
-const iframeModal = element.querySelector('.iframe-modal');
 const initiateMedia = element.querySelector('.td');
 
 
@@ -138,90 +137,6 @@ const initiateMedia = element.querySelector('.td');
      // }
     // }, { once: true });
   // }
-// Vanilla JS equivalent for modal behavior
-// Modal behavior with vanilla JS
-
-
-  // Set initial styles
-  const dModalWrapper = document.querySelector('.d-modal-wrapper');
-  if (dModalWrapper) {
-    dModalWrapper.classList.add('hide');
-    dModalWrapper.style.opacity = '0';
-  } else {
-    console.log('Class .d-modal-wrapper not found');
-  }
-
-  const viewDContainers = document.querySelectorAll('.view-d_container');
-  if (viewDContainers.length === 0) {
-    console.log('Class .view-d_container not found');
-  }
-  viewDContainers.forEach(container => {
-    container.style.opacity = '0';
-    container.style.transform = 'translateY(20px)';
-  });
-
-  // Mouse enter event for .grid-panel
-  document.querySelectorAll('.grid-panel').forEach(gridPanel => {
-    gridPanel.addEventListener('mouseenter', function() {
-      const diamondModal = document.querySelector('.diamond-modal');
-      if (diamondModal) {
-        diamondModal.style.opacity = '100%';
-      } else {
-        console.log('Class .diamond-modal not found');
-      }
-    });
-  });
-
-  // Click event for .diamond-modal
-  const diamondModal = document.querySelector('.diamond-modal');
-  if (diamondModal) {
-    diamondModal.addEventListener('click', function() {
-      if (dataMapping['video']) {
-        const iframeModal = document.querySelector('.iframe-modal');
-        if (iframeModal) {
-          iframeModal.src = dataMapping['video'];
-        } else {
-          console.log('Class .iframe-modal not found');
-        }
-      }
-
-      if (dModalWrapper) {
-        dModalWrapper.classList.remove('hide');
-        setTimeout(() => {
-          dModalWrapper.style.opacity = '1';
-        }, 240);
-      }
-    });
-  }
-
-  // Close behavior for .modal-close_area and .modal-close_btn
-  document.querySelectorAll('.modal-close_area, .modal-close_btn').forEach(closeElement => {
-    closeElement.addEventListener('click', function() {
-      viewDContainers.forEach(container => {
-        container.style.transform = 'translateY(20px)';
-        container.style.opacity = '0';
-        container.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
-      });
-
-      if (dModalWrapper) {
-        dModalWrapper.style.opacity = '0';
-        setTimeout(() => {
-          dModalWrapper.classList.add('hide');
-        }, 300);
-      }
-    });
-  });
-
-  // Existing JavaScript code for data mapping
-
-
-
-// When .diamond-modal is clicked
-//document.querySelector('.diamond-modal').addEventListener('click', function() {
-  //if (iframeModal && dataMapping['video']) {
-    //const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-    //iframeModal.src = VideoUrl;
-  //}
 
 
  Object.keys(dataMapping).forEach(key => {
