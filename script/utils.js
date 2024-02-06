@@ -146,15 +146,23 @@ const initiateMedia = element.querySelector('.td');
       container.style.transform = 'translateY(20px)';
   });
 
-  // Mouse enter event for each .grid-panel
-  element.querySelectorAll('.grid-panel').forEach(gridPanel => {
-      gridPanel.addEventListener('mouseenter', function() {
-          const diamondModal = this.querySelector('.diamond-modal');
-          if (diamondModal) {
-              diamondModal.style.opacity = '100%';
-          }
-      });
+// Mouse enter and leave events for each .grid-panel
+element.querySelectorAll('.grid-panel').forEach(gridPanel => {
+  gridPanel.addEventListener('mouseenter', function() {
+      const diamondModal = this.querySelector('.diamond-modal');
+      if (diamondModal) {
+          diamondModal.style.opacity = '100%';
+      }
   });
+
+  gridPanel.addEventListener('mouseleave', function() {
+      const diamondModal = this.querySelector('.diamond-modal');
+      if (diamondModal) {
+          diamondModal.style.opacity = ''; // Reset to initial opacity
+      }
+  });
+});
+
 
 // Click event for each .diamond-modal
 element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
