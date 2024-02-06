@@ -169,8 +169,10 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
   diamondModal.addEventListener('click', function() {
       const dModalWrapper = this.nextElementSibling;
       const iframeModal = dModalWrapper.querySelector('.iframe-modal');
-      if (iframeModal && dataMapping['video']) {
-          iframeModal.src = dataMapping['video'];
+
+      if (iframeModal && dataMapping['video'] && !iframeModal.dataset.videoSet) {
+          iframeModal.src = dataMapping['video'].replace('500/500', '500/500/autoplay');
+          iframeModal.dataset.videoSet = 'true';
       }
 
       if (dModalWrapper) {
