@@ -137,7 +137,20 @@ const initiateMedia = element.querySelector('.td');
      // }
     // }, { once: true });
   // }
+// Vanilla JS equivalent for modal behavior
+document.querySelectorAll('.button').forEach(button => {
+  button.addEventListener('click', function() {
+    var buttonId = this.getAttribute('id');
+    var modalContainer = document.getElementById('modal-container');
+    modalContainer.className = buttonId;
+    document.body.classList.add('modal-active');
+  });
+});
 
+document.getElementById('modal-container').addEventListener('click', function() {
+  this.classList.add('out');
+  document.body.classList.remove('modal-active');
+});
 
  Object.keys(dataMapping).forEach(key => {
    if (key !== 'image') {
