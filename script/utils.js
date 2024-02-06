@@ -140,6 +140,63 @@ const initiateMedia = element.querySelector('.td');
   // }
 
 
+  element.querySelectorAll('.d-modal-wrapper').forEach(wrapper => wrapper.classList.add('hide'));
+  element.querySelectorAll('.view-d_container').forEach(container => {
+      container.style.opacity = '0';
+      container.style.transform = 'translateY(20px)';
+  });
+
+  // Mouse enter event for each .grid-panel
+  element.querySelectorAll('.grid-panel').forEach(gridPanel => {
+      gridPanel.addEventListener('mouseenter', function() {
+          const diamondModal = this.querySelector('.diamond-modal');
+          if (diamondModal) {
+              diamondModal.style.opacity = '100%';
+          }
+      });
+  });
+
+  // Click event for each .diamond-modal
+  element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
+      diamondModal.addEventListener('click', function() {
+          const dModalWrapper = this.nextElementSibling;
+          if (dModalWrapper) {
+              dModalWrapper.classList.remove('hide');
+              setTimeout(() => {
+                  dModalWrapper.style.opacity = '1';
+              }, 240);
+
+              const viewDContainer = dModalWrapper.querySelector('.view-d_container');
+              if (viewDContainer) {
+                  viewDContainer.style.opacity = '1';
+                  viewDContainer.style.transform = 'translateY(0px)';
+                  viewDContainer.style.transition = 'opacity 0.32s ease, transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+              }
+          }
+      });
+  });
+
+  // Close behavior for .modal-close_area and .modal-close_btn
+  element.querySelectorAll('.modal-close_area, .modal-close_btn').forEach(closeElement => {
+      closeElement.addEventListener('click', function() {
+          const dModalWrapper = this.closest('.d-modal-wrapper');
+          if (dModalWrapper) {
+              const viewDContainer = dModalWrapper.querySelector('.view-d_container');
+              if (viewDContainer) {
+                  viewDContainer.style.transform = 'translateY(20px)';
+                  viewDContainer.style.opacity = '0';
+                  viewDContainer.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+              }
+
+              setTimeout(() => {
+                  dModalWrapper.classList.add('hide');
+              }, 300);
+          }
+      });
+  });
+
+
+
  Object.keys(dataMapping).forEach(key => {
    if (key !== 'image') {
      const elements = element.querySelectorAll(`[data-element="${key}"]`);
