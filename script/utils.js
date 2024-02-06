@@ -66,6 +66,7 @@ export function bindProductDataToElement(element, product) {
     const {
       id,
       video,
+      supplier_video_link,
       image,
       delivery_time: {min_business_days, max_business_days},
       certificate: {
@@ -80,6 +81,7 @@ export function bindProductDataToElement(element, product) {
     const dataMapping = {
       "id": id,
       "video": video,
+      "supplier_video_link": supplier_video_link,
       "image": image,
       "shape": formatShape(shape),
       "clarity": clarity,
@@ -122,8 +124,8 @@ const initiateMedia = element.querySelector('.td');
 
   const imageElement = element.querySelector('.diamond-image');
   // Action 1: Set background image of imageElement
-  if (imageElement && dataMapping['image']) {
-    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+  if (imageElement && dataMapping['supplier_video_link']) {
+    imageElement.style.backgroundImage = `url('${dataMapping['supplier_video_link']}')`;
   
     // Action 2: Add mouseenter event listener to imageElement
     imageElement.addEventListener('mouseenter', function() {
