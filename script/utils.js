@@ -183,9 +183,9 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
 
           const viewDContainer = dModalWrapper.querySelector('.view-d_container');
           if (viewDContainer) {
-              viewDContainer.style.opacity = '1';
-              viewDContainer.style.transform = 'translateY(0px)';
-              viewDContainer.style.transition = 'opacity 0.32s ease, transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            viewDContainer.style.transform = 'translateY(20px)';
+            viewDContainer.style.opacity = '1';
+            viewDContainer.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
           }
       }
   });
