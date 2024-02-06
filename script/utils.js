@@ -106,7 +106,6 @@ export function bindProductDataToElement(element, product) {
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
-const iframeGrid = element.querySelector('.iframe-grid');
 const initiateMedia = element.querySelector('.td');
 
 
@@ -121,21 +120,24 @@ const initiateMedia = element.querySelector('.td');
     });
   }
 
-const imageElement = element.querySelector('.diamond-image');
-// Action 1: Set background image of imageElement
-if (imageElement && dataMapping['image']) {
-  imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
-}
-// Action 2: Add mouseenter event listener to imageElement (only once)
-if (imageElement) {
-  imageElement.addEventListener('mouseenter', function() {
-    if (iframeGrid && dataMapping['video'] && !iframeElement.dataset.videoSet) {
-      const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-      iframeGrid.src = videoUrl;
-      iframeGrid.dataset.videoSet = 'true';
-    }
-  }, { once: true });
-}
+  const imageElement = element.querySelector('.diamond-image');
+  // Action 1: Set background image of imageElement
+  if (imageElement && dataMapping['image']) {
+    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+  
+    // Action 2: Add mouseenter event listener to imageElement
+    imageElement.addEventListener('mouseenter', function() {
+      // Hide the image element
+      imageElement.style.display = 'none';
+      const iframeGrid = element.querySelector('.iframe-grid');
+      if (iframeGrid && dataMapping['video'] && !iframeGrid.dataset.videoSet) {
+        const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        iframeGrid.src = videoUrl;
+        iframeGrid.dataset.videoSet = 'true';
+      }
+    }, { once: true });
+  }
+  
 
 
 
