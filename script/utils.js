@@ -106,6 +106,7 @@ export function bindProductDataToElement(element, product) {
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
+const iframeModal = element.querySelector('.iframe-modal');
 const initiateMedia = element.querySelector('.td');
 
 
@@ -154,8 +155,9 @@ document.querySelectorAll('.view-d_container').forEach(container => {
 
 // When .diamond-modal is clicked
 document.querySelector('.diamond-modal').addEventListener('click', function() {
-  if (dataMapping['video']) {
-    document.querySelector('.iframe-modal').src = dataMapping['video'];
+  if (iframeModal && dataMapping['video']) {
+    const VideoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+    iframeModal.src = VideoUrl;
   }
 
   const dModalWrapper = document.querySelector('.d-modal-wrapper');
