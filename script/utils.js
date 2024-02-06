@@ -178,19 +178,22 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
 
       if (dModalWrapper) {
           dModalWrapper.classList.remove('hide');
+          // Add a slight delay before starting the transition
           setTimeout(() => {
               dModalWrapper.style.opacity = '1';
-          }, 240);
 
-          const viewDContainer = dModalWrapper.querySelector('.view-d_container');
-          if (viewDContainer) {
-            viewDContainer.style.transform = 'translateY(0px)';
-            viewDContainer.style.opacity = '1';
-            viewDContainer.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
-          }
+              const viewDContainer = dModalWrapper.querySelector('.view-d_container');
+              if (viewDContainer) {
+                viewDContainer.style.transform = 'translateY(0px)';
+                viewDContainer.style.opacity = '1';
+                // Ensure transition is set before changing properties
+                viewDContainer.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+              }
+          }, 20); // A short delay like 20ms is often enough
       }
   });
 });
+
 
 
   // Close behavior for .modal-close_area and .modal-close_btn
