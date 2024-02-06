@@ -66,7 +66,6 @@ export function bindProductDataToElement(element, product) {
     const {
       id,
       video,
-      supplier_video_link,
       image,
       delivery_time: {min_business_days, max_business_days},
       certificate: {
@@ -81,7 +80,6 @@ export function bindProductDataToElement(element, product) {
     const dataMapping = {
       "id": id,
       "video": video,
-      "supplier_video_link": supplier_video_link,
       "image": image,
       "shape": formatShape(shape),
       "clarity": clarity,
@@ -122,25 +120,32 @@ const initiateMedia = element.querySelector('.td');
     });
   }
 
-  const imageElement = element.querySelector('.diamond-image');
+//  const imageElement = element.querySelector('.diamond-image');
   // Action 1: Set background image of imageElement
-  if (imageElement && dataMapping['supplier_video_link']) {
-    imageElement.style.backgroundImage = `url('${dataMapping['supplier_video_link']}')`;
+  //if (imageElement && dataMapping['image']) {
+    //imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
   
     // Action 2: Add mouseenter event listener to imageElement
-    imageElement.addEventListener('mouseenter', function() {
+    //imageElement.addEventListener('mouseenter', function() {
       // Hide the image element
-      imageElement.style.display = 'none';
-      const iframeGrid = element.querySelector('.iframe-grid');
-      if (iframeGrid && dataMapping['video'] && !iframeGrid.dataset.videoSet) {
-        const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
-        iframeGrid.src = videoUrl;
-        iframeGrid.dataset.videoSet = 'true';
-      }
-    }, { once: true });
-  }
+      //imageElement.style.display = 'none';
+      //const iframeGrid = element.querySelector('.iframe-grid');
+      //if (iframeGrid && dataMapping['video'] && !iframeGrid.dataset.videoSet) {
+        // const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+        // iframeGrid.src = videoUrl;
+        // iframeGrid.dataset.videoSet = 'true';
+     // }
+    // }, { once: true });
+  // }
   
+  const iframeGridElements = document.querySelectorAll('.iframe-grid[data-element="video"]');
 
+  iframeGridElements.forEach(iframeGridElement => {
+    if (dataMapping['video']) {
+      iframeGridElement.src = dataMapping['video'];
+    }
+  });
+  
 
 
  Object.keys(dataMapping).forEach(key => {
