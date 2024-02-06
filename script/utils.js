@@ -138,18 +138,54 @@ const initiateMedia = element.querySelector('.td');
     // }, { once: true });
   // }
 // Vanilla JS equivalent for modal behavior
-document.querySelectorAll('.button').forEach(button => {
-  button.addEventListener('click', function() {
-    var buttonId = this.getAttribute('id');
-    var modalContainer = document.getElementById('modal-container');
-    modalContainer.className = buttonId;
-    document.body.classList.add('modal-active');
+// Modal behavior with vanilla JS
+document.querySelectorAll('.grid-panel').forEach(gridPanel => {
+  gridPanel.addEventListener('mouseenter', function() {
+    document.querySelector('.diamond-modal').style.opacity = '100%';
   });
 });
 
-document.getElementById('modal-container').addEventListener('click', function() {
-  this.classList.add('out');
-  document.body.classList.remove('modal-active');
+// Set initial styles
+document.querySelector('.d-modal-wrapper').style.opacity = '0';
+document.querySelectorAll('.view-d_container').forEach(container => {
+  container.style.opacity = '0';
+  container.style.transform = 'translateY(20px)';
+});
+
+// When .diamond-modal is clicked
+document.querySelector('.diamond-modal').addEventListener('click', function() {
+  if (dataMapping['video']) {
+    document.querySelector('.iframe-modal').src = dataMapping['video'];
+  }
+
+  const dModalWrapper = document.querySelector('.d-modal-wrapper');
+  dModalWrapper.style.display = 'block';
+  setTimeout(() => {
+    dModalWrapper.style.opacity = '1';
+  }, 240);
+
+  document.querySelectorAll('.view-d_container').forEach(container => {
+    container.style.opacity = '1';
+    container.style.transform = 'translateY(0px)';
+    container.style.transition = 'opacity 0.32s ease, transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  });
+});
+
+// Modal close behavior
+document.querySelectorAll('.modal-close_area, .modal-close_btn').forEach(closeElement => {
+  closeElement.addEventListener('click', function() {
+    document.querySelectorAll('.view-d_container').forEach(container => {
+      container.style.transform = 'translateY(20px)';
+      container.style.opacity = '0';
+      container.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+    });
+
+    const dModalWrapper = document.querySelector('.d-modal-wrapper');
+    dModalWrapper.style.opacity = '0';
+    setTimeout(() => {
+      dModalWrapper.style.display = 'none';
+    }, 300);
+  });
 });
 
  Object.keys(dataMapping).forEach(key => {
