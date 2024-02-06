@@ -105,14 +105,10 @@ export function bindProductDataToElement(element, product) {
     
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
-const imageElement = element.querySelector('.diamond-image');
 const iframeElement = element.querySelector('.iframe');
 const initiateMedia = element.querySelector('.td');
 
-// Action 1: Set background image of imageElement
-if (imageElement && dataMapping['image']) {
-    imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
-  }
+
   
   // Action 2: Add click event listener to imageElement
   if (mediaElement) {
@@ -123,7 +119,23 @@ if (imageElement && dataMapping['image']) {
       }
     });
   }
-  
+
+const imageElement = element.querySelector('.diamond-image');
+// Action 1: Set background image of imageElement
+if (imageElement && dataMapping['image']) {
+  imageElement.style.backgroundImage = `url('${dataMapping['image']}')`;
+}
+// Action 2: Add mouseenter event listener to imageElement (only once)
+if (imageElement) {
+  imageElement.addEventListener('mouseenter', function() {
+    if (iframeElement && dataMapping['video'] && !iframeElement.dataset.videoSet) {
+      const videoUrl = dataMapping['video'].replace('500/500', '500/500/autoplay');
+      iframeElement.src = videoUrl;
+      iframeElement.dataset.videoSet = 'true';
+    }
+  }, { once: true });
+}
+
 
 
  Object.keys(dataMapping).forEach(key => {
