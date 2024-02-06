@@ -212,6 +212,21 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
   });
 
 
+// Click event for each .measurement-detail
+element.querySelectorAll('.measurement-detail').forEach(measurementDetail => {
+  measurementDetail.addEventListener('click', function() {
+      const diamondDetailsGrid = this.querySelector('.diamond-details_grid');
+      if (diamondDetailsGrid) {
+          // Toggle the height between 0 and auto
+          if (diamondDetailsGrid.style.height === 'auto') {
+              diamondDetailsGrid.style.height = '0';
+          } else {
+              diamondDetailsGrid.style.height = 'auto';
+          }
+      }
+  });
+});
+
 
  Object.keys(dataMapping).forEach(key => {
    if (key !== 'image') {
