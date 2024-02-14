@@ -1,12 +1,12 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
 import { showLoadingAnimation, hideLoadingAnimation, debounce } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@6b30df73e525982e0bece6ec0701b74f216a7b00/script/loadingAnimation.js';
-import { handlePanelClick, processVideo, bindProductDataToElement } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@1058e08cc6361919199a7b7cefd1e39fece4d03c/script/utils.js';
+import { handlePanelClick, processVideo, bindProductDataToElement } from './utils.js';
 
 
 class DiamondCollection {
   constructor() {
     console.log('DiamondCollection constructor called');
-    this.API_ENDPOINT = 'https://api.williamandsonsjewelers.com/diamonds';
+    this.API_ENDPOINT = 'https://api.williamandsonsjewelers.com/gemstones';
     this.listInstance = document.querySelector('.collection-listing');
     this.wrapperElement = document.querySelector('.collection-list-wrapper');
     this.currentPage = 1;

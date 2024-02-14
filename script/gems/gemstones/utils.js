@@ -172,7 +172,7 @@ element.querySelectorAll('.diamond-modal').forEach(diamondModal => {
       const iframeModal = dModalWrapper.querySelector('.iframe-modal');
 
       if (iframeModal && dataMapping['video'] && !iframeModal.dataset.videoSet) {
-          iframeModal.src = dataMapping['video'].replace('500/500', '320/320/autoplay');
+          iframeModal.src = dataMapping['video'].replace('500/500', '500/500/autoplay');
           iframeModal.dataset.videoSet = 'true';
       }
 
