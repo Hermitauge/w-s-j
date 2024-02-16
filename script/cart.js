@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartDisplay();
                     updateCartCount();
+                    document.getElementById('diamond-memo').textContent = itemData.name;
                     document.getElementById('popup-cart').classList.add('cd-cart--open');
                 }
             }
