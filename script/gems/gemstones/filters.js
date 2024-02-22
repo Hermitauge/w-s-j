@@ -1,31 +1,31 @@
 // filters.js
-// Function to collect filters based on the checkboxes
 export function collectFilters() {
   const gemstoneRequest = {
-    SerialNumbers: [], // Assuming there are filters for SerialNumbers
-    Colors: [],
-    Shapes: [],
-    StoneTypes: [],
-    Filters: [], // Potentially for additional filters not specified in the image
-    // ... include other filterable properties as needed ...
+    // Adjust field names to match your API's expected parameters
+    SerialNumbers: [], // If the API expects "SerialNumber" instead of "SerialNumbers"
+    Colors: [], // If the API expects "Color" instead of "Colors"
+    Shapes: [], // If the API expects "Shape" instead of "Shapes"
+    StoneTypes: [], // If the API expects "StoneType" instead of "StoneTypes"
+    // Other specific filters as required by the API
   };
 
   document.querySelectorAll('[filter-by]').forEach(element => {
     if (element.checked) {
       const filterBy = element.getAttribute('filter-by');
-      const filterValue = element.id;
+      const filterValue = element.value; // Correctly using `value` here
 
-      // Ensure that the filter category exists in gemstoneRequest
-      if (!gemstoneRequest[filterBy]) {
-        gemstoneRequest[filterBy] = [];
+      // Check if the filter category exists in the gemstoneRequest object
+      if (Object.hasOwnProperty.call(gemstoneRequest, filterBy)) {
+        gemstoneRequest[filterBy].push(filterValue);
+      } else {
+        console.warn(`Filter category '${filterBy}' is not recognized.`);
       }
-      gemstoneRequest[filterBy].push(filterValue);
     }
   });
 
   return gemstoneRequest;
 }
-// Set up filter checkboxes event listeners and callback function
+
 export function setupFilterCheckboxes(onFilterChange) {
   document.querySelectorAll('[filter-by]').forEach(checkbox => {
     checkbox.addEventListener('change', onFilterChange);
