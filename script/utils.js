@@ -107,62 +107,39 @@ export function bindProductDataToElement(element, product) {
     };
     
 
-// Image Viewer Implementation
-const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
-const images = new Array(frame_count); // Pre-allocate space for all images
-let loaded = 0;
-const frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
-let isViewerInitialized = false; // Flag to track if viewer is initialized
+    // Image Viewer Implementation
+    const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
+    const images = [];
+    let loaded = 0;
+    let frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
+    let isUserInteracting = false; // Flag to detect user interaction
 
-// Function to lazily load and initialize all images upon mouseenter
-function initializeViewer() {
-  if (isViewerInitialized) return; // Prevent re-initialization
-  isViewerInitialized = true;
-
-  for (let i = 1; i <= frame_count; i++) {
-    // Check if the image is already loaded (for the initial frame)
-    if (images[i - 1]) continue;
-
-    const img = new Image();
-    img.src = `${url}/${i}.webp`; // Construct the URL dynamically
-    img.onload = () => loaded++;
-    images[i - 1] = img; // Store the image in the array
-    viewer.appendChild(img);
-  }
-
-  const threshold = 2;
-  const total = images.length - 1;
-
-  // Impetus for handling drag
-  new Impetus({
-    source: viewer,
-    update(x) {
-      if (!images.length) return; // Guard clause
-      let currentFrame = images.findIndex(img => img.classList.contains('active'));
-      images[currentFrame].classList.remove('active');
-      currentFrame = Math.floor(-x / threshold) % total;
-      currentFrame = currentFrame < 0 ? total + currentFrame : currentFrame;
-      images[currentFrame].classList.add('active');
+    for (let i = 1; i <= frame_count; i++) {
+        const img = new Image();
+        img.src = `${url}/${i}.webp`; // Construct the URL dynamically
+        img.onload = () => loaded++; // Optionally, track loaded images
+        images.push(img);
+        viewer.appendChild(img);
     }
-  });
 
-  // Cursor style changes
-  viewer.addEventListener('mousedown', e => viewer.style.cursor = 'grabbing');
-  viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
-}
+    const threshold = 2;
+    const total = images.length - 1;
 
-// Load the initial frame specified by top_index
-const initialImage = new Image();
-initialImage.src = `${url}/${frame + 1}.webp`; // Ensure correct path
-initialImage.onload = () => {
-  loaded++;
-  initialImage.classList.add('active');
-};
-images[frame] = initialImage; // Store the initial image at the correct index
-viewer.appendChild(initialImage);
+    const impetus = new Impetus({
+        source: viewer,
+        update(x) {
+            images[frame].classList.remove('active');
+            frame = Math.floor(-x / threshold) % total;
+            frame = frame < 0 ? total + frame : frame;
+            images[frame].classList.add('active');
+        }
+    });
 
-// Initialize the full viewer on mouse enter
-viewer.addEventListener('mouseenter', initializeViewer);
+    images[frame].classList.add('active');
+
+    // Cursor style changes
+    viewer.addEventListener('mousedown', e => viewer.style.cursor = 'grabbing');
+    viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
 
 
 
