@@ -210,4 +210,4 @@
       }
     }()
   });
-  
+  export default Impetus;
