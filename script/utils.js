@@ -107,39 +107,63 @@ export function bindProductDataToElement(element, product) {
     };
     
 
-    // Image Viewer Implementation
-    const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
-    const images = [];
-    let loaded = 0;
-    let frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
-    let isUserInteracting = false; // Flag to detect user interaction
+// Image Viewer Implementation
+const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
+const images = [];
+let loaded = 0;
+const frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
+let isViewerInitialized = false; // Flag to track if viewer is initialized
 
-    for (let i = 1; i <= frame_count; i++) {
-        const img = new Image();
-        img.src = `${url}/${i}.webp`; // Construct the URL dynamically
-        img.onload = () => loaded++; // Optionally, track loaded images
-        images.push(img);
-        viewer.appendChild(img);
+// Function to initialize viewer
+function initializeViewer() {
+  if (isViewerInitialized) return; // Prevent re-initialization
+  isViewerInitialized = true;
+
+  for (let i = 1; i <= frame_count; i++) {
+    const img = new Image();
+    img.src = `${url}/${i}.webp`; // Construct the URL dynamically
+    img.onload = () => {
+      loaded++;
+      if (i === frame + 1) {
+        // Mark the initially loaded frame as active
+        img.classList.add('active');
+      }
+    };
+    images.push(img);
+    viewer.appendChild(img);
+  }
+
+  const threshold = 2;
+  const total = images.length - 1;
+
+  // Impetus for handling drag
+  new Impetus({
+    source: viewer,
+    update(x) {
+      if (!images.length) return; // Guard clause
+      let currentFrame = images.findIndex(img => img.classList.contains('active'));
+      images[currentFrame].classList.remove('active');
+      currentFrame = Math.floor(-x / threshold) % total;
+      currentFrame = currentFrame < 0 ? total + currentFrame : currentFrame;
+      images[currentFrame].classList.add('active');
     }
+  });
 
-    const threshold = 2;
-    const total = images.length - 1;
+  // Cursor style changes
+  viewer.addEventListener('mousedown', e => viewer.style.cursor = 'grabbing');
+  viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
+}
 
-    const impetus = new Impetus({
-        source: viewer,
-        update(x) {
-            images[frame].classList.remove('active');
-            frame = Math.floor(-x / threshold) % total;
-            frame = frame < 0 ? total + frame : frame;
-            images[frame].classList.add('active');
-        }
-    });
+// Only load the starting frame initially
+const initialImage = new Image();
+initialImage.src = `${url}/${frame + 1}.webp`; // Adjust if your frame index is 0-based
+initialImage.onload = () => loaded++;
+initialImage.classList.add('active');
+images.push(initialImage);
+viewer.appendChild(initialImage);
 
-    images[frame].classList.add('active');
-
-    // Cursor style changes
-    viewer.addEventListener('mousedown', e => viewer.style.cursor = 'grabbing');
-    viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
+// Initialize the full viewer on mouse enter
+viewer.addEventListener('mouseenter', initializeViewer);
 
 
 
