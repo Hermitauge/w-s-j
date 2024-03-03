@@ -67,6 +67,7 @@ export function bindProductDataToElement(element, product) {
       id,
       video,
       image,
+      v360: {top_index, url, frame_count},
       delivery_time: {min_business_days, max_business_days},
       certificate: {
           shape, clarity, certNumber, pdfUrl, symmetry,
@@ -79,6 +80,9 @@ export function bindProductDataToElement(element, product) {
     
     const dataMapping = {
       "id": id,
+      "top_index": top_index,
+      "url": url,
+      "frame_count": frame_count,
       "video": video,
       "image": image,
       "shape": formatShape(shape),
@@ -103,6 +107,44 @@ export function bindProductDataToElement(element, product) {
       "max_business_days": max_business_days,
     };
     
+
+    // Image Viewer Implementation
+    const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
+    const images = [];
+    let loaded = 0;
+    let frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
+    let isUserInteracting = false; // Flag to detect user interaction
+
+    for (let i = 1; i <= frame_count; i++) {
+        const img = new Image();
+        img.src = `${url}/${i}.webp`; // Construct the URL dynamically
+        img.onload = () => loaded++; // Optionally, track loaded images
+        images.push(img);
+        viewer.appendChild(img);
+    }
+
+    const threshold = 2;
+    const total = images.length - 1;
+
+    const impetus = new Impetus({
+        source: viewer,
+        update(x) {
+            images[frame].classList.remove('active');
+            frame = Math.floor(-x / threshold) % total;
+            frame = frame < 0 ? total + frame : frame;
+            images[frame].classList.add('active');
+        }
+    });
+
+    images[frame].classList.add('active');
+
+    // Cursor style changes
+    viewer.addEventListener('mousedown', e => viewer.style.cursor = 'grabbing');
+    viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
+
+
+
+
 // Selecting the .diamond-image element
 const mediaElement = element.querySelector('.main-panel');
 const iframeElement = element.querySelector('.iframe');
