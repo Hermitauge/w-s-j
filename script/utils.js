@@ -1,5 +1,4 @@
 import { formatShape, formatPrice, formatCarats, formatLength, formatWidth, formatDepth, formatTable, formatCut, formatDiamondIcon } from 'https://cdn.jsdelivr.net/gh/Hermitauge/W-S@873a511bc3a68ec8a96d90ce3b9fa32fb5359102/script/formatData.js';
-import { Impetus } from 'https://cdn.jsdelivr.net/gh/Hermitauge/w-s-j@1141a328fd3e69abf1d613a4272ea198e1822d2e/script/360.js'
 //  utils.js
 
 export function handlePanelClick(event, newItem, processVideo) {
