@@ -109,27 +109,24 @@ export function bindProductDataToElement(element, product) {
 
 // Image Viewer Implementation
 const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
-const images = [];
+const images = new Array(frame_count); // Pre-allocate space for all images
 let loaded = 0;
 const frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
 let isViewerInitialized = false; // Flag to track if viewer is initialized
 
-// Function to initialize viewer
+// Function to lazily load and initialize all images upon mouseenter
 function initializeViewer() {
   if (isViewerInitialized) return; // Prevent re-initialization
   isViewerInitialized = true;
 
   for (let i = 1; i <= frame_count; i++) {
+    // Check if the image is already loaded (for the initial frame)
+    if (images[i - 1]) continue;
+
     const img = new Image();
     img.src = `${url}/${i}.webp`; // Construct the URL dynamically
-    img.onload = () => {
-      loaded++;
-      if (i === frame + 1) {
-        // Mark the initially loaded frame as active
-        img.classList.add('active');
-      }
-    };
-    images.push(img);
+    img.onload = () => loaded++;
+    images[i - 1] = img; // Store the image in the array
     viewer.appendChild(img);
   }
 
@@ -154,12 +151,14 @@ function initializeViewer() {
   viewer.addEventListener('mouseup', e => viewer.style.cursor = 'grab');
 }
 
-// Only load the starting frame initially
+// Load the initial frame specified by top_index
 const initialImage = new Image();
-initialImage.src = `${url}/${frame + 1}.webp`; // Adjust if your frame index is 0-based
-initialImage.onload = () => loaded++;
-initialImage.classList.add('active');
-images.push(initialImage);
+initialImage.src = `${url}/${frame + 1}.webp`; // Ensure correct path
+initialImage.onload = () => {
+  loaded++;
+  initialImage.classList.add('active');
+};
+images[frame] = initialImage; // Store the initial image at the correct index
 viewer.appendChild(initialImage);
 
 // Initialize the full viewer on mouse enter
