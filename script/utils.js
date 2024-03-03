@@ -109,6 +109,12 @@ export function bindProductDataToElement(element, product) {
 
     // Image Viewer Implementation
     const viewer = element.querySelector('.viewer'); // Ensure .viewer is part of your element's template
+    if (!viewer) {
+      console.log('.viewer element not found on the page.');
+      // Optionally, you can perform some fallback operations here
+      // For now, we'll just exit the script to prevent errors
+      return;
+  }
     const images = [];
     let loaded = 0;
     let frame = top_index || 0; // Use top_index as the starting frame, default to 0 if undefined
